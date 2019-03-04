@@ -1,0 +1,40 @@
+version: 2.0
+
+env:
+    variables:
+    s3_dest_bucket: camunda-distro-7.10.0.zip
+    repo_base: /root/.m2/repository/org/camunda/bpm/camunda-distro
+    
+phases:
+    install:
+        commands:
+            - echo Nothing to do in the install phase.
+    pre_build:
+        commands:
+            - echo Uploading camunda-distro-7.10.0.zip
+            - aws s3 cp s3://$s3_dest_bucket/camunda-distro-7.10.0.zip $repo_base/7.10.0
+    build:
+        commands:
+            - echo Build started on 'date'.
+            - mvn install
+    post_build:
+        commands:
+            - echo Nothu\ing to do in the pre_build phase.
+
+version: 0.2
+phases:
+    install:
+        commands:
+            - echo Nothing to do in the install phase.
+    pre_build:
+        commands:
+            - echo Uploading camunda-distro-7.10.0.zip
+            - mkdir -p  '/root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0'
+            - aws s3 cp s3://camunda-distro-7.10.0.zip/camunda-distro-7.10.0.zip '/root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0'
+    build:
+        commands:
+            - echo Build started on 'date'.
+            - mvn install
+    post_build:
+        commands:
+            - echo Nothu\ing to do in the pre_build phase.
