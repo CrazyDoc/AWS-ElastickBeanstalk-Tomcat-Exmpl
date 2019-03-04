@@ -1,0 +1,22 @@
+branch-defaults:
+  default:
+    environment: Nginxt-env
+deploy:
+  artifact: C:\Path\camunda-beanstalk-1.0-SNAPSHOT-zip.zip
+environment-defaults:
+  Nginxt-env:
+    branch: null
+    repository: null
+global:
+  application_name: nginxt
+  default_ec2_keyname: work
+  default_platform: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java
+    8 running on 64bit Amazon Linux/3.0.7
+  default_region: us-east-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: eb-cli
+  sc: null
+  workspace_type: Application
