@@ -1,14 +1,18 @@
 branch-defaults:
   default:
-    environment: Nginxt-env
+    environment: test-env
+  master:
+    environment: prod-env
+    group_suffix: null
 deploy:
-  artifact: C:\Path\camunda-beanstalk-1.0-SNAPSHOT-zip.zip
+  artifact: C:\Users\Admin\Documents\GitHub\infrastructure-beanstalk-test\target\camunda-beanstalk-1.0-SNAPSHOT-zip.zip
 environment-defaults:
-  Nginxt-env:
+  test-env:
     branch: null
     repository: null
 global:
-  application_name: nginxt
+  application_name: test
+  branch: null
   default_ec2_keyname: work
   default_platform: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java
     8 running on 64bit Amazon Linux/3.0.7
@@ -18,5 +22,6 @@ global:
   platform_name: null
   platform_version: null
   profile: eb-cli
-  sc: null
+  repository: null
+  sc: git
   workspace_type: Application

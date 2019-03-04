@@ -1,41 +1,42 @@
+AWSConfigurationTemplateVersion: 1.1.0.0
 EnvironmentConfigurationMetadata:
-  Description: Configuration created from the EB CLI using "eb config save".
   DateCreated: '1551686980000'
-  DateModified: '1551686980000'
-Platform:
-  PlatformArn: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java 8 running on 64bit Amazon Linux/3.1.1
-OptionSettings:
-  AWSEBAutoScalingGroup.aws:autoscaling:asg:
-    MaxSize: '1'
-  AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger:
-    LowerThreshold: '20'
-    Statistic: Maximum
-    MeasureName: CPUUtilization
-    Unit: Percent
-  aws:elasticbeanstalk:environment:proxy:
-    ProxyServer: nginx
-  aws:elasticbeanstalk:environment:
-    ServiceRole: aws-elasticbeanstalk-service-role
-    LoadBalancerType: application
-  aws:elasticbeanstalk:healthreporting:system:
-    SystemType: enhanced
-  AWSEBV2LoadBalancerTargetGroup.aws:elasticbeanstalk:environment:process:default:
-    StickinessEnabled: true
-  aws:autoscaling:launchconfiguration:
-    IamInstanceProfile: aws-elasticbeanstalk-ec2-role
-  aws:rds:dbinstance:
-    DBPassword: camundapass
-    DBEngine: postgres
-    DBUser: camunda
-  AWSEBAutoScalingLaunchConfiguration.aws:autoscaling:launchconfiguration:
-    EC2KeyName: work
-  AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
-    UpperThreshold: '60'
+  DateModified: '1551700699914'
+  Description: Configuration created from the EB CLI using "eb config save".
 EnvironmentTier:
-  Type: Standard
   Name: WebServer
+  Type: Standard
 Extensions:
   RDS.EBConsoleSnippet:
     Order: null
     SourceLocation: https://s3.us-east-2.amazonaws.com/elasticbeanstalk-env-resources-us-east-2/eb_snippets/rds/rds.json
-AWSConfigurationTemplateVersion: 1.1.0.0
+OptionSettings:
+  AWSEBAutoScalingGroup.aws:autoscaling:asg:
+    MaxSize: '1'
+  AWSEBAutoScalingLaunchConfiguration.aws:autoscaling:launchconfiguration:
+    EC2KeyName: work
+  AWSEBCloudwatchAlarmHigh.aws:autoscaling:trigger:
+    UpperThreshold: '60'
+  AWSEBCloudwatchAlarmLow.aws:autoscaling:trigger:
+    LowerThreshold: '20'
+    MeasureName: CPUUtilization
+    Statistic: Maximum
+    Unit: Percent
+  AWSEBV2LoadBalancerTargetGroup.aws:elasticbeanstalk:environment:process:default:
+    StickinessEnabled: true
+  aws:autoscaling:launchconfiguration:
+    IamInstanceProfile: aws-elasticbeanstalk-ec2-role
+  aws:elasticbeanstalk:environment:
+    LoadBalancerType: application
+    ServiceRole: aws-elasticbeanstalk-service-role
+  aws:elasticbeanstalk:environment:proxy:
+    ProxyServer: nginx
+  aws:elasticbeanstalk:healthreporting:system:
+    SystemType: enhanced
+  aws:rds:dbinstance:
+    DBEngine: postgres
+    DBPassword: camundapass
+    DBUser: camunda
+Platform:
+  PlatformArn: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java 8
+    running on 64bit Amazon Linux/3.1.1
