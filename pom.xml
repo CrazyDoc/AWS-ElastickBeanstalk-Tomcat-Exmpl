@@ -44,13 +44,6 @@
             <version>${org.camunda.bpm.version}</version>
             <type>war</type>
         </dependency>
-        
-        <dependency>
-            <groupId>org.camunda.bpm</groupId>
-            <artifactId>test</artifactId>
-            <version>0.1.0</version>
-            <type>war</type>
-        </dependency>
 
     </dependencies>
 
