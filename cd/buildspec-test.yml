@@ -12,3 +12,8 @@ phases:
             - mvn install
     post_build:
         commands:
+            - aws s3 cp /root/.m2/repository/au/org/howe/camunda-beanstalk/1.0-SNAPSHOT/camunda-beanstalk-1.0-SNAPSHOT-zip.zip s3://camunda.distro/camunda-beanstalk-1.0-SNAPSHOT-zip.zip
+artifacts:
+    files:
+        - target/camunda-beanstalk-1.0-SNAPSHOT.jar
+        
