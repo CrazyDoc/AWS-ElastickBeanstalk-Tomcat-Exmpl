@@ -9,7 +9,6 @@ phases:
             - curl -o /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/camunda-distro-7.10.0.zip https://s3.us-east-2.amazonaws.com/camunda.distro/camunda-distro-7.10.0.zip
     build:
         commands:
-            - mvn install
     post_build:
         commands:
             - mvn package
