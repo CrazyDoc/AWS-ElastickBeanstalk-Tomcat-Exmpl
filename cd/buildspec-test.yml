@@ -13,6 +13,6 @@ phases:
             - mvn package
 artifacts:
     files:
-        - '**/*'
-    base-directory: 'camunda-beanstalk-1.0-SNAPSHOT-zip'
+        - 'camunda-beanstalk-1.0-SNAPSHOT-zip/**/*'
+    base-directory: 'target'
     discard-paths: yes
