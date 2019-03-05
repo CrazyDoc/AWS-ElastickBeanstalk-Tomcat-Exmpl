@@ -14,5 +14,5 @@ phases:
             - mvn package
 artifacts:
     files:
-        - '**/*'
+        - '**/*.zip'
     base-directory: 'target'
