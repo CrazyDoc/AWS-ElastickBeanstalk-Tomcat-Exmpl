@@ -11,3 +11,5 @@ phases:
     post_build:
         commands:
             - mvn package
+artifacts:
+    base-directory: 'target'
