@@ -12,4 +12,8 @@ phases:
             - mvn install
     post_build:
         commands:
-        
+            - mvn package
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'target/my-web-app'
