@@ -12,7 +12,6 @@ phases:
     post_build:
         commands:
             - mvn package
-            - find / *camunda-beanstalk*
 artifacts:
     files:
         - '**/*'
