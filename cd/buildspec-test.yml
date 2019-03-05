@@ -12,6 +12,3 @@ phases:
             - mvn install
     post_build:
         commands:
-artifacts:
-    files:
-        - target/camunda-beanstalk.zip
