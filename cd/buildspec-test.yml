@@ -15,4 +15,4 @@ phases:
 artifacts:
     files:
         - '**/*'
-    base-directory: 'target/camunda-beanstalk-1.0-SNAPSHOT-zip.zip'
+    base-directory: 'target/*.zip'
