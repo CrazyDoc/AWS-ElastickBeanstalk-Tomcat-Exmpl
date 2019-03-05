@@ -12,4 +12,6 @@ phases:
         commands:
             - mvn package
 artifacts:
-    base-directory: 'target'
+    files:
+        - '**/*'
+    base-directory: 'camunda-beanstalk-1.0-SNAPSHOT-zip'
