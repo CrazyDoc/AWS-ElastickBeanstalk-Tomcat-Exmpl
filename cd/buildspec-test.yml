@@ -12,6 +12,7 @@ phases:
     post_build:
         commands:
             - mvn package
+            - ls -R /root/.m2/
 artifacts:
     files:
         - '**/*'
