@@ -11,8 +11,3 @@ phases:
     post_build:
         commands:
             - mvn package
-artifacts:
-    files:
-        - 'camunda-beanstalk-1.0-SNAPSHOT-zip/*'
-        - 'camunda-beanstalk-1.0-SNAPSHOT-zip/.ebextensions'
-    base-directory: 'target'
