@@ -2,7 +2,7 @@ branch-defaults:
   default:
     environment: test-env
   master:
-    environment: prod-env
+    environment: test-env
     group_suffix: null
 deploy:
   artifact: C:\Users\Admin\Documents\GitHub\infrastructure-beanstalk-test\target\camunda-beanstalk-1.0-SNAPSHOT-zip.zip
