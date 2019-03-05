@@ -13,5 +13,6 @@ phases:
             - mvn package
 artifacts:
     files:
-        - '**/*.zip'
-    base-directory: 'target'
+        - '**/*'
+    base-directory: 'camunda*'
+    discard-paths: yes
