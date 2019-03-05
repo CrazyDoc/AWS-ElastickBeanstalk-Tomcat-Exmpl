@@ -15,4 +15,3 @@ artifacts:
     files:
         - 'camunda-beanstalk-1.0-SNAPSHOT-zip/**/*'
     base-directory: 'target'
-    discard-paths: yes
