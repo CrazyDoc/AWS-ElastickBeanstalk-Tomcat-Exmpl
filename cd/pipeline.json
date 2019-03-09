@@ -1,0 +1,97 @@
+{
+    "pipeline": {
+        "name": "camunda",
+        "roleArn": "arn:aws:iam::756258835214:role/service-role/AWSCodePipelineServiceRole-us-east-2-camunda",
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-us-east-2-920298653166"
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "Source",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "ThirdParty",
+                            "provider": "GitHub",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "Branch": "master",
+                            "OAuthToken": "cfc1a91beba3bfe051ffec2bbe356d5e517aa535",
+                            "Owner": "CrazyDoc",
+                            "PollForSourceChanges": "false",
+                            "Repo": "infrastructure-beanstalk-test"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "us-east-2"
+                    }
+                ]
+            },
+            {
+                "name": "Build",
+                "actions": [
+                    {
+                        "name": "Build",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "camunda"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "region": "us-east-2"
+                    }
+                ]
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "Deploy",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "provider": "ElasticBeanstalk",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ApplicationName": "test2",
+                            "EnvironmentName": "test4-env"
+                        },
+                        "outputArtifacts": [],
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "region": "us-east-2"
+                    }
+                ]
+            }
+        ],
+        "version": 1
+    }
+}
