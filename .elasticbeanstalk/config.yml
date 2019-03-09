@@ -1,8 +1,8 @@
 branch-defaults:
   default:
-    environment: test1-env
+    environment: test-env
   master:
-    environment: test3-env
+    environment: test-env
     group_suffix: null
 deploy:
   artifact: null
@@ -14,7 +14,7 @@ environment-defaults:
     branch: null
     repository: null
 global:
-  application_name: test2
+  application_name: test
   branch: null
   default_ec2_keyname: work
   default_platform: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java
