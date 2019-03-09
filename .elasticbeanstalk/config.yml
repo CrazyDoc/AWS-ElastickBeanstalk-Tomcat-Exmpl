@@ -1,17 +1,17 @@
 branch-defaults:
   default:
-    environment: test-env
+    environment: test1-env
   master:
-    environment: test-env
+    environment: test2-env
     group_suffix: null
 deploy:
-  artifact: C:\Users\Admin\Documents\GitHub\infrastructure-beanstalk-test\target\camunda-beanstalk-1.0-SNAPSHOT-zip.zip
+  artifact: null
 environment-defaults:
   test-env:
     branch: null
     repository: null
 global:
-  application_name: test
+  application_name: test2
   branch: null
   default_ec2_keyname: work
   default_platform: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java

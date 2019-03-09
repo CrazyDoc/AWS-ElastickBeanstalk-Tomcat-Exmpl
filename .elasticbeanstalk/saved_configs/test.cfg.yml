@@ -9,7 +9,7 @@ EnvironmentTier:
 Extensions:
   RDS.EBConsoleSnippet:
     Order: null
-    SourceLocation: https://s3.us-east-2.amazonaws.com/elasticbeanstalk-env-resources-us-east-2/eb_snippets/rds/rds.json
+    SourceLocation: file:\\C:\Users\Admin\Documents\GitHub\infrastructure-beanstalk-test\.elasticbeanstalk\saved_configs\rds.json
 OptionSettings:
   AWSEBAutoScalingGroup.aws:autoscaling:asg:
     MaxSize: '1'

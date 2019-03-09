@@ -1,0 +1,162 @@
+{
+  "SnippetMetadata": {
+    "Version": "1.0",
+    "Description": "RDS Snippet",
+    "Documentation": "RDS Snippet for AWS ElasticBeanStalk"
+  },
+  "Outputs": {
+    "AWSEBRDSDatabaseProperties": {
+      "Description": "Properties associated with the RDS database instance",
+      "Value": {
+        "Fn::Join": [
+          ",",
+          [
+            {
+              "Ref": "AWSEBRDSDatabase"
+            },
+            {
+              "Fn::GetAtt": [
+                "AWSEBRDSDatabase",
+                "Endpoint.Address"
+              ]
+            },
+            {
+              "Fn::GetAtt": [
+                "AWSEBRDSDatabase",
+                "Endpoint.Port"
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  },
+  "Parameters": {
+    "AWSEBDBUser": {
+      "NoEcho": "true",
+      "Description": "The name of master user for the client DB Instance.",
+      "Default": "ebroot",
+      "Type": "String",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters"
+    },
+    "AWSEBDBPassword": {
+      "NoEcho": "true",
+      "Description": "The master password for the DB instance.",
+      "Type": "String",
+      "ConstraintDescription": "must contain only alphanumeric characters"
+    },
+    "AWSEBDBName": {
+      "NoEcho": "true",
+      "Description": "The DB Name of the RDS instance",
+      "Default": "ebdb",
+      "Type": "String",
+      "ConstraintDescription": "must contain only alphanumeric characters"
+    }
+  },
+  "Resources": {
+    "AWSEBAutoScalingGroup": {
+      "Metadata": {
+        "AWS::ElasticBeanstalk::Ext": {
+          "_ParameterTriggers": {
+            "_TriggerConfigDeployment": {
+              "CmpFn::Insert": {
+                "values": [
+                  {
+                    "CmpFn::Ref": "Parameter.AWSEBDBUser"
+                  },
+                  {
+                    "CmpFn::Ref": "Parameter.AWSEBDBPassword"
+                  },
+                  {
+                    "CmpFn::Ref": "Parameter.AWSEBDBName"
+                  }
+                ]
+              }
+            }
+          },
+          "_ContainerConfigFileContent": {
+            "plugins": {
+              "rds": {
+                "Description": "RDS Environment variables",
+                "env": {
+                  "RDS_USERNAME": {
+                    "Ref": {
+                      "CmpFn::Ref": "Parameter.AWSEBDBUser"
+                    }
+                  },
+                  "RDS_PASSWORD": {
+                    "Ref": {
+                      "CmpFn::Ref": "Parameter.AWSEBDBPassword"
+                    }
+                  },
+                  "RDS_DB_NAME": {
+                    "Ref": {
+                      "CmpFn::Ref": "Parameter.AWSEBDBName"
+                    }
+                  },
+                  "RDS_HOSTNAME": {
+                    "Fn::GetAtt": [
+                      "AWSEBRDSDatabase",
+                      "Endpoint.Address"
+                    ]
+                  },
+                  "RDS_PORT": {
+                    "Fn::GetAtt": [
+                      "AWSEBRDSDatabase",
+                      "Endpoint.Port"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "AWSEBRDSDatabase": {
+      "Type": "AWS::RDS::DBInstance",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "DBName": {
+          "Ref": {
+            "CmpFn::Ref": "Parameter.AWSEBDBName"
+          }
+        },
+        "AllocatedStorage": "5",
+        "DBInstanceClass": "db.t2.micro",
+        "Engine": "mysql",
+        "EngineVersion": "5.6",
+        "VPCSecurityGroups": [
+          {
+            "Fn::GetAtt": ["AWSEBRDSDBSecurityGroup","GroupId"]
+          }
+        ],
+        "MasterUsername": {
+          "Ref": {
+            "CmpFn::Ref": "Parameter.AWSEBDBUser"
+          }
+        },
+        "MasterUserPassword": {
+          "Ref": {
+            "CmpFn::Ref": "Parameter.AWSEBDBPassword"
+          }
+        },
+        "MultiAZ": false
+      }
+    },
+    "AWSEBRDSDBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "SecurityGroupIngress": {
+          "IpProtocol" : "tcp",
+          "FromPort"   : "0",
+          "ToPort"     : "65535",
+          "SourceSecurityGroupId": {
+            "Fn::GetAtt" : ["AWSEBSecurityGroup","GroupId"]
+          }
+        },
+        "GroupDescription": "Enable database access to Beanstalk application"
+      }
+    }
+  }
+}
