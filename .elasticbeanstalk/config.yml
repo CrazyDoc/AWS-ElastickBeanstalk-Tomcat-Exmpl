@@ -2,12 +2,15 @@ branch-defaults:
   default:
     environment: test1-env
   master:
-    environment: test2-env
+    environment: test3-env
     group_suffix: null
 deploy:
   artifact: null
 environment-defaults:
   test-env:
+    branch: null
+    repository: null
+  test3-env:
     branch: null
     repository: null
 global:
