@@ -4,7 +4,6 @@ phases:
         commands:
     pre_build:
         commands:
-            - ls /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
     build:
         commands:
     post_build:
