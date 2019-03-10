@@ -35,8 +35,8 @@ OptionSettings:
     SystemType: enhanced
   aws:rds:dbinstance:
     DBEngine: postgres
-    DBPassword: installpass
-    DBUser: installer
+    DBPassword: nefigndigdslfkgn
+    DBUser: dlkjfnglsdjfg
 Platform:
   PlatformArn: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java 8
     running on 64bit Amazon Linux/3.1.1
