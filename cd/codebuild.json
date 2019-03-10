@@ -1,8 +1,5 @@
-{
-    "projects": [
-        {
+		{
             "name": "test",
-            "arn": "arn:aws:codebuild:us-east-2:756258835214:project/test",
             "source": {
                 "type": "CODEPIPELINE",
                 "buildspec": "cd/buildspec-test.yml",
@@ -30,11 +27,6 @@
             "queuedTimeoutInMinutes": 480,
             "encryptionKey": "arn:aws:kms:us-east-2:756258835214:alias/aws/s3",
             "tags": [],
-            "created": 1552220409.615,
-            "lastModified": 1552220409.615,
-            "badge": {
-                "badgeEnabled": false
-            },
             "logsConfig": {
                 "cloudWatchLogs": {
                     "status": "ENABLED"
@@ -45,6 +37,3 @@
                 }
             }
         }
-    ],
-    "projectsNotFound": []
-}
