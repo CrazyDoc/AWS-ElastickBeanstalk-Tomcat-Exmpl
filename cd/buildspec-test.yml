@@ -2,7 +2,7 @@ version: 0.2
 phases:
     install:
         commands:
-        - cp ./settings.xml /root/.m2/settings.xml
+        - cp /cd/settings.xml /root/.m2/settings.xml
     pre_build:
         commands:
     build:
