@@ -9,7 +9,7 @@ EnvironmentTier:
 Extensions:
   RDS.EBConsoleSnippet:
     Order: null
-    SourceLocation: https://s3.us-east-2.amazonaws.com/ebsnippets/rds.json
+    SourceLocation: https://github.com/CrazyDoc/infra-camunda-test/blob/master/ebsnippets/rds.json
 OptionSettings:
   AWSEBAutoScalingGroup.aws:autoscaling:asg:
     MaxSize: '1'
@@ -35,8 +35,8 @@ OptionSettings:
     SystemType: enhanced
   aws:rds:dbinstance:
     DBEngine: postgres
-    DBPassword: camundapass
-    DBUser: camunda
+    DBPassword: installpass
+    DBUser: installer
 Platform:
   PlatformArn: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java 8
     running on 64bit Amazon Linux/3.1.1

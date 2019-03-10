@@ -2,7 +2,7 @@ branch-defaults:
   default:
     environment: test-env
   master:
-    environment: null
+    environment: test-env
     group_suffix: null
 deploy:
   artifact: null
