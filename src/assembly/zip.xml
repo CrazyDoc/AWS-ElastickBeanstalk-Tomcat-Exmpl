@@ -41,6 +41,7 @@
                 <include>org.camunda.bpm:camunda-distro</include>
             </includes>
             <outputDirectory>/.ebextensions/tomcat</outputDirectory>
+            <unpack>true</unpack>
         </dependencySet>
     </dependencySets>
 </assembly>
