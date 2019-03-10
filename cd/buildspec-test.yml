@@ -5,7 +5,6 @@ phases:
             - cp ./cd/settings.xml /root/.m2/settings.xml
     pre_build:
         commands:
-            - mvn clean install
     build:
         commands:
             - mvn clean install
