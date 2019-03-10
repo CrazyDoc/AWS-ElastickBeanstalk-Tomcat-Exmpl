@@ -83,14 +83,6 @@
                     <descriptor>src/assembly/zip.xml</descriptor>
                     <finalName>${project.artifactId}-${project.version}</finalName>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
