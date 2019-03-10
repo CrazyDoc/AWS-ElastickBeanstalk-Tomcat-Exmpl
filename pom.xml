@@ -50,6 +50,13 @@
     <build>
         <plugins>
 			<plugin>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<createChecksum>true</createChecksum>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>3.0.0</version>
@@ -96,7 +103,7 @@
         </repository>
         <repository>
             <id>infra-camunda</id>
-            <url>https://github.com/CapBPM/infra-camunda/blob/master/</url>
+            <url>https://github.com/CrazyDoc/infra-camunda-test/blob/master/</url>
         </repository>
     </repositories>
 
