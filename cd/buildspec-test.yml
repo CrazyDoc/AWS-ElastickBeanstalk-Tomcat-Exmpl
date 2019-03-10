@@ -5,6 +5,7 @@ phases:
     pre_build:
         commands:
             - mkdir -p /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
+            - curl -o /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/camunda-distro-7.10.0.zip https://github.com/CrazyDoc/infra-camunda-test/tree/master/org/camunda/bpm/camunda-distro/7.10.0/camunda-distro-7.10.0.zip
     build:
         commands:
     post_build:
