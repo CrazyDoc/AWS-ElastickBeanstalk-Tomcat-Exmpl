@@ -205,9 +205,9 @@ under the License.
 						<updatePolicy>always</updatePolicy>
 						<checksumPolicy>ignore</checksumPolicy>
 					</snapshots>
-					<id>camunda-bpm-nexus</id>
-					<name>camunda-bpm-nexus</name>
-					<url>https://app.camunda.com/nexus/content/groups/public/</url>
+					<id>camunda-repo</id>
+					<name>camunda-repo</name>
+					<url>https://github.com/CrazyDoc/infra-camunda-test/blob/master/</url>
 				</repository>
 				
 			</repositories>
