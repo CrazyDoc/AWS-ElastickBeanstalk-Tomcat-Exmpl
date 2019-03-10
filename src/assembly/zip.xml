@@ -19,5 +19,12 @@
             <outputDirectory>/</outputDirectory>
             <outputFileNameMapping>camunda.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
+		<dependencySet>
+            <includes>
+                <include>org.camunda.bpm:camunda-engine-rest</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+            <outputFileNameMapping>engine-rest.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
     </dependencySets>
 </assembly>
