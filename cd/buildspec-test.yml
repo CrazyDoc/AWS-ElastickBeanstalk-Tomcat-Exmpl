@@ -13,7 +13,7 @@ phases:
 artifacts:
     files:
         - '**/*'
-    base-directory: 'target/camunda-beanstalk-1.0-SNAPSHOT-zip'
+    base-directory: target/${project.artifactId}-${project.version}
 cache:
   paths:
     - '/root/.m2/**/*'
