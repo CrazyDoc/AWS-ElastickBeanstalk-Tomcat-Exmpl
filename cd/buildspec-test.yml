@@ -4,9 +4,9 @@ phases:
         commands:
     pre_build:
         commands:
+            - mkdir -p /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
     build:
         commands:
-            - mvn clean install
     post_build:
         commands:
             - mvn package
