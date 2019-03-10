@@ -47,5 +47,11 @@
                 </includes>
             </unpackOptions>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.postgresql:postgresql</include>
+            </includes>
+            <outputDirectory>/.ebextensions/tomcat/lib</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>
