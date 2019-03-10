@@ -7,13 +7,13 @@ phases:
         commands:
     build:
         commands:
-            - mvn clean install
+            - mvn install
     post_build:
         commands:
 artifacts:
     files:
         - '**/*'
-    base-directory: target/${project.artifactId}-${project.version}
+    base-directory: 'target/camunda-beanstalk-1.0-SNAPSHOT-zip'
 cache:
   paths:
     - '/root/.m2/**/*'
