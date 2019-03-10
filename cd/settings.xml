@@ -190,25 +190,29 @@ under the License.
      | This will make it more intuitive to understand what the set of introduced profiles is attempting
      | to accomplish, particularly when you only have a list of profile id's for debug.
      |
-     | This profile example uses the JDK version to trigger activation, and provides a JDK-specific repo.
+     | This profile example uses the JDK version to trigger activation, and provides a JDK-specific repo. -->
     <profile>
-      <id>jdk-1.4</id>
-
-      <activation>
-        <jdk>1.4</jdk>
-      </activation>
-
-      <repositories>
-        <repository>
-          <id>jdk14</id>
-          <name>Repository for JDK 1.4 builds</name>
-          <url>http://www.myhost.com/maven/jdk14</url>
-          <layout>default</layout>
-          <snapshotPolicy>always</snapshotPolicy>
-        </repository>
-      </repositories>
+	    <id>camunda-repo</id>
+			<repositories>
+				<repository>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>ignore</checksumPolicy>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+						<updatePolicy>always</updatePolicy>
+						<checksumPolicy>ignore</checksumPolicy>
+					</snapshots>
+					<id>camunda-bpm-nexus</id>
+					<name>camunda-bpm-nexus</name>
+					<url>https://app.camunda.com/nexus/content/groups/public/</url>
+				</repository>
+				
+			</repositories>
     </profile>
-    -->
+
 
     <!--
      | Here is another profile, activated by the system property 'target-env' with a value of 'dev',
@@ -245,6 +249,10 @@ under the License.
     </profile>
     -->
   </profiles>
+  
+ <activeProfiles>
+   <activeProfile>camunda-repo</activeProfile>
+ </activeProfiles>
 
   <!-- activeProfiles
    | List of profiles that are active for all builds.

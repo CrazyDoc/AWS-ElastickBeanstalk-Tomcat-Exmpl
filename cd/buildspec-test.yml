@@ -2,14 +2,14 @@ version: 0.2
 phases:
     install:
         commands:
+            - cp ./cd/settings.xml /root/.m2/settings.xml
     pre_build:
         commands:
     build:
         commands:
     post_build:
         commands:
-            - mvn package -DskipTests
-            - ls /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
+            - mvn package
 artifacts:
     files:
         - '**/*'

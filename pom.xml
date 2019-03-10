@@ -101,10 +101,6 @@
             <name>camunda-bpm-nexus</name>
             <url>https://app.camunda.com/nexus/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>infra-camunda</id>
-            <url>https://github.com/CrazyDoc/infra-camunda-test/blob/master/</url>
-        </repository>
     </repositories>
 
 </project>
