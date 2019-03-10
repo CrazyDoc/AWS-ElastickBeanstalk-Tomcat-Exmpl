@@ -26,5 +26,15 @@
             <outputDirectory>/</outputDirectory>
             <outputFileNameMapping>engine-rest.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>*:war</include>
+            </includes>
+            <excludes>
+                <exclude>org.camunda.bpm.webapp:camunda-webapp-tomcat</exclude>
+                <exclude>org.camunda.bpm:camunda-engine-rest</exclude>
+            </excludes>
+            <outputDirectory>/</outputDirectory>
+        </dependencySet>
     </dependencySets>
 </assembly>
