@@ -6,6 +6,7 @@ phases:
         commands:
             - mkdir -p /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
             - curl -o /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/camunda-distro-7.10.0.zip https://s3.us-east-2.amazonaws.com/camunda.distro/camunda-distro-7.10.0.zip
+            - ls /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
     build:
         commands:
     post_build:
