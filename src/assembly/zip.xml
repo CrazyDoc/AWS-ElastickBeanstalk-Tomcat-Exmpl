@@ -36,5 +36,17 @@
             </excludes>
             <outputDirectory>/</outputDirectory>
         </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.camunda.bpm:camunda-distro</include>
+            </includes>
+            <outputDirectory>/.ebextensions/tomcat</outputDirectory>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <includes>
+                    <include>lib/*.jar</include>
+                </includes>
+            </unpackOptions>
+        </dependencySet>
     </dependencySets>
 </assembly>
