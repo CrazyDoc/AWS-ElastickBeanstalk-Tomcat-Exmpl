@@ -11,4 +11,13 @@
             <outputDirectory>.ebextensions</outputDirectory>
         </fileSet>
     </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <includes>
+                <include>org.camunda.bpm.webapp:camunda-webapp-tomcat</include>
+            </includes>
+            <outputDirectory>/</outputDirectory>
+            <outputFileNameMapping>camunda.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+    </dependencySets>
 </assembly>
