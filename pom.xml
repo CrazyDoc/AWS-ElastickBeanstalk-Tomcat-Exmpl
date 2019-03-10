@@ -53,7 +53,7 @@
 				<artifactId>maven-install-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<createChecksum>true</createChecksum>
+					<createChecksum>false</createChecksum>
 				</configuration>
 			</plugin>
 			<plugin>
