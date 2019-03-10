@@ -8,8 +8,8 @@ phases:
         commands:
     post_build:
         commands:
-            - ls /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
             - mvn package
+            - ls /root/.m2/repository/org/camunda/bpm/camunda-distro/7.10.0/
 artifacts:
     files:
         - '**/*'
