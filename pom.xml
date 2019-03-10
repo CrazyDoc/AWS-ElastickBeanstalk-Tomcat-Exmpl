@@ -68,19 +68,12 @@
         </plugins>
     </build>
 
-    <repositories>
-	
+    <repositories>	
         <repository>
             <id>camunda-bpm-nexus</id>
             <name>camunda-bpm-nexus</name>
             <url>https://app.camunda.com/nexus/content/groups/public/</url>
-        </repository> 	
-	
-		<repository>
-			<id>infra-camunda</id>
-			<url>https://github.com/CapBPM/infra-camunda/blob/master/</url>
-		</repository>
-		
+        </repository> 			
     </repositories>
 
 </project>
