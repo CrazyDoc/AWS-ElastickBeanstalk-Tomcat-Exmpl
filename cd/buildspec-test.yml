@@ -9,7 +9,8 @@ phases:
         commands:
     post_build:
         commands:
-            - mvn package
+            - 
+            - mvn deploy
 artifacts:
     files:
         - '**/*'
