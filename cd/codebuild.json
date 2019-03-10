@@ -1,0 +1,50 @@
+{
+    "projects": [
+        {
+            "name": "test",
+            "arn": "arn:aws:codebuild:us-east-2:756258835214:project/test",
+            "source": {
+                "type": "CODEPIPELINE",
+                "buildspec": "cd/buildspec-test.yml",
+                "insecureSsl": false
+            },
+            "artifacts": {
+                "type": "CODEPIPELINE",
+                "name": "test",
+                "packaging": "NONE",
+                "encryptionDisabled": false
+            },
+            "cache": {
+                "type": "NO_CACHE"
+            },
+            "environment": {
+                "type": "LINUX_CONTAINER",
+                "image": "aws/codebuild/java:openjdk-11",
+                "computeType": "BUILD_GENERAL1_SMALL",
+                "environmentVariables": [],
+                "privilegedMode": false,
+                "imagePullCredentialsType": "CODEBUILD"
+            },
+            "serviceRole": "arn:aws:iam::756258835214:role/service-role/codebuild-test-service-role",
+            "timeoutInMinutes": 60,
+            "queuedTimeoutInMinutes": 480,
+            "encryptionKey": "arn:aws:kms:us-east-2:756258835214:alias/aws/s3",
+            "tags": [],
+            "created": 1552220409.615,
+            "lastModified": 1552220409.615,
+            "badge": {
+                "badgeEnabled": false
+            },
+            "logsConfig": {
+                "cloudWatchLogs": {
+                    "status": "ENABLED"
+                },
+                "s3Logs": {
+                    "status": "DISABLED",
+                    "encryptionDisabled": false
+                }
+            }
+        }
+    ],
+    "projectsNotFound": []
+}
