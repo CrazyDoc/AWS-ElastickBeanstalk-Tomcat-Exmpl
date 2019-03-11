@@ -115,13 +115,13 @@ under the License.
      |
      | NOTE: You should either specify username/password OR privateKey/passphrase, since these pairings are
      |       used together.
-     |
+     |-->
     <server>
-      <id>deploymentRepo</id>
-      <username>repouser</username>
-      <password>repopwd</password>
+      <id>github-repo</id>
+      <username>username</username>
+      <password>password</password>
     </server>
-    -->
+
 
     <!-- Another sample, using keys to authenticate.
     <server>
@@ -192,7 +192,7 @@ under the License.
      |
      | This profile example uses the JDK version to trigger activation, and provides a JDK-specific repo. -->
     <profile>
-	    <id>camunda-repo</id>
+	    <id>github-repo</id>
 			<repositories>
 				<repository>
 					<releases>
@@ -205,9 +205,9 @@ under the License.
 						<updatePolicy>always</updatePolicy>
 						<checksumPolicy>ignore</checksumPolicy>
 					</snapshots>
-					<id>camunda-repo</id>
-					<name>camunda-repo</name>
-					<url>https://github.com/CrazyDoc/infra-camunda-test/blob/master/</url>
+					<id>github-repo</id>
+					<name>github-repo</name>
+					<url>https://capbpm.github.io/infra-camunda/</url>
 				</repository>
 				
 			</repositories>
@@ -251,7 +251,7 @@ under the License.
   </profiles>
   
  <activeProfiles>
-   <activeProfile>camunda-repo</activeProfile>
+   <activeProfile>github-repo</activeProfile>
  </activeProfiles>
 
   <!-- activeProfiles

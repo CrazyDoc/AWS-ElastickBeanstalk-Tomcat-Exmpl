@@ -1,15 +1,11 @@
 AWSConfigurationTemplateVersion: 1.1.0.0
-EnvironmentConfigurationMetadata:
-  DateCreated: '1551686980000'
-  DateModified: '1551700699914'
-  Description: Configuration created from the EB CLI using "eb config save".
 EnvironmentTier:
   Name: WebServer
   Type: Standard
 Extensions:
   RDS.EBConsoleSnippet:
     Order: null
-    SourceLocation: https://s3.us-east-2.amazonaws.com/ebsnippets/rds.json
+    SourceLocation: ./.elasticbeanstalk/saved_configs/rds.json
 OptionSettings:
   AWSEBAutoScalingGroup.aws:autoscaling:asg:
     MaxSize: '1'
