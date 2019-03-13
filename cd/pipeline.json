@@ -1,7 +1,7 @@
 {
     "pipeline": {
-        "name": "test",
-        "roleArn": "arn:aws:iam::756258835214:role/service-role/AWSCodePipelineServiceRole-us-east-2-test",
+        "name": "test1",
+        "roleArn": "arn:aws:iam::756258835214:role/AWSCodePipelineFullAccess",
         "artifactStore": {
             "type": "S3",
             "location": "codepipeline-us-east-2-920298653166"
@@ -49,7 +49,7 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "test"
+                            "ProjectName": "test1"
                         },
                         "outputArtifacts": [
                             {
@@ -78,8 +78,8 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ApplicationName": "test",
-                            "EnvironmentName": "test-env1"
+                            "ApplicationName": "test1",
+                            "EnvironmentName": "test-env"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [
