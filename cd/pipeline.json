@@ -79,7 +79,7 @@
                         "runOrder": 1,
                         "configuration": {
                             "ApplicationName": "test",
-                            "EnvironmentName": "test-env"
+                            "EnvironmentName": "test-env1"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [

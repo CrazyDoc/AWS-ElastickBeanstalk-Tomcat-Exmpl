@@ -1,24 +1,12 @@
 branch-defaults:
-  default:
-    environment: test-env
   master:
-    environment: test-env
+    environment: null
     group_suffix: null
-deploy:
-  artifact: null
-environment-defaults:
-  test-env:
-    branch: null
-    repository: null
-  test3-env:
-    branch: null
-    repository: null
 global:
   application_name: test
   branch: null
-  default_ec2_keyname: work
-  default_platform: arn:aws:elasticbeanstalk:us-east-2::platform/Tomcat 8.5 with Java
-    8 running on 64bit Amazon Linux/3.0.7
+  default_ec2_keyname: null
+  default_platform: Java 8
   default_region: us-east-2
   include_git_submodules: true
   instance_profile: null

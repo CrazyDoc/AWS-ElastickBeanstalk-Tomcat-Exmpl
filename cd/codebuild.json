@@ -22,10 +22,9 @@
                 "privilegedMode": false,
                 "imagePullCredentialsType": "CODEBUILD"
             },
-            "serviceRole": "arn:aws:iam::756258835214:role/service-role/codebuild-test-service-role",
+            "serviceRole": "arn:aws:iam::756258835214:role/AWSCodeBuildAdminAccess",
             "timeoutInMinutes": 60,
             "queuedTimeoutInMinutes": 480,
-            "encryptionKey": "arn:aws:kms:us-east-2:756258835214:alias/aws/s3",
             "tags": [],
             "logsConfig": {
                 "cloudWatchLogs": {
