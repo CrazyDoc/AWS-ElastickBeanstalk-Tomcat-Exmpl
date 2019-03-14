@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+    install:
+        commands:
+            - cp ./cd/settings.xml /root/.m2/settings.xml
+    pre_build:
+        commands:
+    build:
+        commands:
+            - mvn install
+    post_build:
+        commands:
+artifacts:
+    files:
+        - '**/*'
+    base-directory: 'target/camunda-beanstalk-1.0-SNAPSHOT-zip'
+cache:
+  paths:
+    - '/root/.m2/**/*'
