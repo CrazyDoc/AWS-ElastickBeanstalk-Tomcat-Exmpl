@@ -1,5 +1,5 @@
 		{
-            "name": "test1",
+            "name": "test",
             "source": {
                 "type": "CODEPIPELINE",
                 "buildspec": "cd/buildspec-test.yml",
@@ -7,7 +7,7 @@
             },
             "artifacts": {
                 "type": "CODEPIPELINE",
-                "name": "test1",
+                "name": "test",
                 "packaging": "NONE",
                 "encryptionDisabled": false
             },

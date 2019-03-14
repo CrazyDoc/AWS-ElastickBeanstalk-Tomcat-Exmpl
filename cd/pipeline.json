@@ -1,6 +1,6 @@
 {
     "pipeline": {
-        "name": "test1",
+        "name": "test",
         "roleArn": "arn:aws:iam::756258835214:role/AWSCodePipelineFullAccess",
         "artifactStore": {
             "type": "S3",
@@ -49,7 +49,7 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "test1"
+                            "ProjectName": "test"
                         },
                         "outputArtifacts": [
                             {
@@ -78,7 +78,7 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ApplicationName": "test1",
+                            "ApplicationName": "test",
                             "EnvironmentName": "test-env"
                         },
                         "outputArtifacts": [],
