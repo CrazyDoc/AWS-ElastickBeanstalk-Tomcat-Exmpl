@@ -4,7 +4,7 @@
         "roleArn": "arn:aws:iam::756258835214:role/AWSCodePipelineFullAccess",
         "artifactStore": {
             "type": "S3",
-            "location": "codepipeline-us-east-2-920298653166"
+            "location": "codepipeline-1234567890"
         },
         "stages": [
             {
