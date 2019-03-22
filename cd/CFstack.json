@@ -9,6 +9,7 @@
 		"DBUser": {
 			"NoEcho": "true",
 			"Type": "String",
+			"Default" : "camundatest",
 			"Description": "Test database admin account name",
 			"MinLength": "1",
 			"MaxLength": "16",
@@ -19,6 +20,7 @@
 		"DBPassword": {
 			"NoEcho": "true",
 			"Type": "String",
+			"Default" : "camundatest",
 			"Description": "Test database admin account password",
 			"MinLength": "8",
 			"MaxLength": "41",
@@ -29,11 +31,14 @@
 		"OperatorEMail": {
 			"Description": "EMail address to notify if there are any operational issues",
 			"Type": "String",
+			"Default" : "belev90@yandex.ru",
 			"AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
 			"ConstraintDescription": "must be a valid email address."
 		}
     },
+	
     "Resources": {
+	
 		"StackRole": {
 			"Type": "AWS::IAM::Role",
 			"Properties": {
@@ -62,25 +67,113 @@
 		},
 		
 		"S3Bucket": {
-			"Type": "AWS::S3::Bucket"
+			"Type": "AWS::S3::Bucket",
+			"DependsOn": "StackRole"
 		},
 
 		"ebapp": {
 			"Type": "AWS::ElasticBeanstalk::Application",
 			"Properties": {
 				"ApplicationName" : "test",
-				"Description": "AWS Elastic Beanstalk Python Sample Application"
+				"Description": "AWS Elastic Beanstalk Sample Application"
+			}
+		},
+		
+	    "InstanceSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
+				"SecurityGroupIngress": []
+			}
+		},
+		
+        "AWSEBRDSDBSecurityGroup": {
+			"DependsOn": "InstanceSecurityGroup",
+			"Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enable database access to Beanstalk application",
+                "SecurityGroupIngress": {
+                    "FromPort": "0",
+					"ToPort": "65535",
+                    "IpProtocol": "tcp",
+                    "SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
+                }
+            }
+		},
+		
+		"AlarmTopic": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+				"Subscription": [{ "Endpoint": { "Ref": "OperatorEMail" }, "Protocol": "email" }]
+			}
+		},
+		
+		"CPUAlarmHigh": {
+			"Type": "AWS::CloudWatch::Alarm",
+			"Properties": {
+				"EvaluationPeriods": "10",
+				"Statistic": "Average",
+				"Threshold": "50",
+				"AlarmDescription": "Alarm if CPU too high or metric disappears indicating the RDS database instance is having issues",
+				"Period": "60",
+				"Namespace": "AWS/RDS",
+				"MetricName": "CPUUtilization",
+				"Dimensions": [{
+					"Name": "DBInstanceIdentifier",
+					"Value": { "Ref": "SampleDB" }
+				}],
+				"ComparisonOperator": "GreaterThanThreshold",
+				"AlarmActions": [{ "Ref": "AlarmTopic" }],
+				"InsufficientDataActions": [{ "Ref": "AlarmTopic" }]
+			}
+		},
+		
+		"SampleDB": {
+			"Type": "AWS::RDS::DBInstance",
+			"Properties": {
+				"Engine": "postgres",
+				"DBName": "beanstalkdb",
+				"MasterUsername": { "Ref": "DBUser" },
+				"DBInstanceClass": "db.t2.small",
+				"AllocatedStorage": "5",
+				"MasterUserPassword": { "Ref": "DBPassword" },
+				"VPCSecurityGroups": [ { "Fn::GetAtt": [ "AWSEBRDSDBSecurityGroup", "GroupId" ] } ]
 			}
 		},
 		
 		"ebenv": {
 			"Type" : "AWS::ElasticBeanstalk::Environment",
+			"DependsOn": "SampleDB",
 			"Properties" : {
-				"ApplicationName" : {
-					"Ref": "ebapp"
-				},
+				"ApplicationName" : { "Ref": "ebapp" },
 				"EnvironmentName" : "test-env",
 				"OptionSettings" : [
+					{
+					"Namespace": "aws:autoscaling:launchconfiguration",
+					"OptionName": "SecurityGroups",
+					"Value": { "Ref": "InstanceSecurityGroup" }
+					},
+					
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "JDBC_CONNECTION_STRING",
+					"Value": { "Fn::Join": ["", ["jdbc:postgresql://", { "Fn::GetAtt": ["SampleDB", "Endpoint.Address"] }, ":", { "Fn::GetAtt": ["SampleDB", "Endpoint.Port"] }, "/beanstalkdb" ]]}
+					}, 
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBUser",
+					"Value": { "Ref": "DBUser" }
+					}, 						
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBPassword",
+					"Value": { "Ref": "DBPassword" }
+					}, 
+					{
+					"Namespace": "aws:elasticbeanstalk:healthreporting:system",
+					"OptionName": "SystemType",
+					"Value": "enhanced"
+					},
 					{
 					"Namespace" : "aws:autoscaling:asg",
 					"OptionName" : "MaxSize",
@@ -135,36 +228,6 @@
 					"Namespace" : "aws:elasticbeanstalk:environment:proxy",
 					"OptionName" : "ProxyServer",
 					"Value" : "nginx"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBAllocatedStorage",
-					"Value" : "5"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBDeletionPolicy",
-					"Value" : "Delete"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBEngine",
-					"Value" : "postgres"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBInstanceClass",
-					"Value" : "db.t2.micro"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBPassword",
-					"Value" : "camundapass"
-					},
-					{
-					"Namespace" : "aws:rds:dbinstance",
-					"OptionName" : "DBUser",
-					"Value" : "camunda"
 					}
 				],
 				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
@@ -174,8 +237,10 @@
 				}
 			}
 		},
+
 		"pipeline": {
             "Type": "AWS::CodePipeline::Pipeline",
+			"DependsOn": "codebuild",
             "Properties": {
 				"Name": "test",
 				"RoleArn": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
@@ -198,7 +263,7 @@
 								"RunOrder": 1,
 								"Configuration": {
 									"Branch": "master",
-									"OAuthToken": "**************",
+									"OAuthToken": "cfc1a91beba3bfe051ffec2bbe356d5e517aa535",
 									"Owner": "CrazyDoc",
 									"PollForSourceChanges": "false",
 									"Repo": "infrastructure-beanstalk-test"
@@ -268,8 +333,10 @@
 				]
 			}
 		},
+		
 		"codebuild": {
 			"Type": "AWS::CodeBuild::Project",
+			"DependsOn": "ebenv",
 			"Properties": {
 				"Name": "test",
 				"Source": {
