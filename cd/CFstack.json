@@ -90,7 +90,7 @@
 		"EBapp": {
 			"Type": "AWS::ElasticBeanstalk::Application",
 			"Properties": {
-				"ApplicationName" : { "Ref": "AWS::StackName" },
+				"ApplicationName" : { "Ref": "AppName" },
 				"Description": "AWS Elastic Beanstalk Sample Application"
 			}
 		},
@@ -162,7 +162,7 @@
 			"DependsOn": "Database",
 			"Properties" : {
 				"ApplicationName" : { "Ref": "EBapp" },
-				"EnvironmentName" : { "Fn::Join" : [ "-", [ { "Ref": "AWS::StackName" }, "env" ] ] },
+				"EnvironmentName" : { "Fn::Join" : [ "-", [ { "Ref": "AppName" }, "env" ] ] },
 				"OptionSettings" : [
 					{
 					"Namespace": "aws:autoscaling:launchconfiguration",
@@ -269,7 +269,7 @@
 						"Name": "Source",
 						"Actions": [
 							{
-								"Name": { "Ref": "AWS::StackName"},
+								"Name": { "Ref": "AppName"},
 								"ActionTypeId": {
 									"Category": "Source",
 									"Owner": "ThirdParty",
@@ -297,7 +297,7 @@
 						"Name": "Build",
 						"Actions": [
 							{
-								"Name": "Build",
+								"Name": { "Ref": "AppName"},
 								"ActionTypeId": {
 									"Category": "Build",
 									"Owner": "AWS",
@@ -306,7 +306,7 @@
 								},
 								"RunOrder": 1,
 								"Configuration": {
-									"ProjectName": { "Ref": "AWS::StackName"}
+									"ProjectName": { "Ref": "AppName"}
 								},
 								"OutputArtifacts": [
 									{
@@ -325,7 +325,7 @@
 						"Name": "Deploy",
 						"Actions": [
 							{
-								"Name": { "Ref": "AWS::StackName"},
+								"Name": { "Ref": "AppName"},
 								"ActionTypeId": {
 									"Category": "Deploy",
 									"Owner": "AWS",
@@ -334,7 +334,7 @@
 								},
 								"RunOrder": 1,
 								"Configuration": {
-									"ApplicationName": { "Ref": "AWS::StackName"},
+									"ApplicationName": { "Ref": "AppName"},
 									"EnvironmentName": { "Ref": "EBenv"}
 								},
 								"OutputArtifacts": [],
@@ -354,14 +354,14 @@
 			"Type": "AWS::CodeBuild::Project",
 			"DependsOn": "EBenv",
 			"Properties": {
-				"Name": { "Ref": "AWS::StackName"},
+				"Name": { "Ref": "AppName"},
 				"Source": {
 					"Type": "CODEPIPELINE",
 					"InsecureSsl": false
 				},
 				"Artifacts": {
 					"Type": "CODEPIPELINE",
-					"Name": { "Ref": "AWS::StackName"},
+					"Name": { "Ref": "AppName"},
 					"Packaging": "NONE",
 					"EncryptionDisabled": false
 				},
