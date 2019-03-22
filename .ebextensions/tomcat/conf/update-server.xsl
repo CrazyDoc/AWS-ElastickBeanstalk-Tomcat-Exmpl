@@ -48,8 +48,8 @@
                   uniqueResourceName="process-engine"
                   driverClassName="org.postgresql.Driver"
                   url="${{JDBC_CONNECTION_STRING}}?autoReconnect=true&amp;serverTimezone=UTC"
-                  username="${{RDS_USERNAME}}"
-                  password="${{RDS_PASSWORD}}"
+                  username="${{DBUser}}"
+                  password="${{DBPassword}}"
                   maxActive="20"
                   minIdle="5" />
     </xsl:template>
