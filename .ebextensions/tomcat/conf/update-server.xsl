@@ -47,7 +47,7 @@
                   factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
                   uniqueResourceName="process-engine"
                   driverClassName="org.postgresql.Driver"
-                  url="jdbc:postgresql://${{RDS_HOSTNAME}}:${{RDS_PORT}}/${{RDS_DB_NAME}}?autoReconnect=true&amp;serverTimezone=UTC"
+                  url="${{JDBC_CONNECTION_STRING}}?autoReconnect=true&amp;serverTimezone=UTC"
                   username="${{RDS_USERNAME}}"
                   password="${{RDS_PASSWORD}}"
                   maxActive="20"

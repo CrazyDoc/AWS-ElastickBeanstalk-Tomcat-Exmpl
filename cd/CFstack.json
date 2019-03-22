@@ -1,0 +1,324 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "AppName": {
+            "Type": "String",
+			"Default" : "test",
+			"Description" : "Name for ElasticBeanstalk(application, environment), CodePipeline(pipeline, codebuild)"
+        },
+		"DBUser": {
+			"NoEcho": "true",
+			"Type": "String",
+			"Description": "Test database admin account name",
+			"MinLength": "1",
+			"MaxLength": "16",
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+		},
+
+		"DBPassword": {
+			"NoEcho": "true",
+			"Type": "String",
+			"Description": "Test database admin account password",
+			"MinLength": "8",
+			"MaxLength": "41",
+			"AllowedPattern": "[a-zA-Z0-9]*",
+			"ConstraintDescription": "must contain only alphanumeric characters."
+		},
+
+		"OperatorEMail": {
+			"Description": "EMail address to notify if there are any operational issues",
+			"Type": "String",
+			"AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
+			"ConstraintDescription": "must be a valid email address."
+		}
+    },
+    "Resources": {
+		"StackRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"Path": "/",
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/AWSCodePipelineFullAccess",
+					"arn:aws:iam::aws:policy/AmazonS3FullAccess",
+					"arn:aws:iam::aws:policy/AWSCodeDeployFullAccess",
+					"arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess",
+					"arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
+					"arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+					"arn:aws:iam::aws:policy/AmazonRDSFullAccess"
+					
+				],
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{
+                        "Effect": "Allow",
+                        "Principal": { "AWS" : "*" },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }]
+				}
+			}
+		},
+		
+		"S3Bucket": {
+			"Type": "AWS::S3::Bucket"
+		},
+
+		"ebapp": {
+			"Type": "AWS::ElasticBeanstalk::Application",
+			"Properties": {
+				"ApplicationName" : "test",
+				"Description": "AWS Elastic Beanstalk Python Sample Application"
+			}
+		},
+		
+		"SampleApplicationVersion" : {
+			"Type" : "AWS::ElasticBeanstalk::ApplicationVersion",
+			"Properties" : {
+				"Description" : "Version 1.0",
+				"ApplicationName" : { "Ref" : "SampleApplication" },
+				"SourceBundle" : {
+				"S3Bucket": { "Fn::Join" : ["-", ["cloudformation-examples", {"Ref" : "AWS::Region" }]]},
+				"S3Key": "CloudFormationBeanstalkRDSExample.war"
+				}
+			}
+		},
+		
+		"ebenv": {
+			"Type" : "AWS::ElasticBeanstalk::Environment",
+			"Properties" : {
+				"ApplicationName" : {
+					"Ref": "ebapp"
+				},
+				"EnvironmentName" : "test-env",
+				"OptionSettings" : [
+					{
+					"Namespace" : "aws:autoscaling:asg",
+					"OptionName" : "MaxSize",
+					"Value" : "1"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "UpperThreshold",
+					"Value" : "60"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "LowerThreshold",
+					"Value" : "20"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "MeasureName",
+					"Value" : "CPUUtilization"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Statistic",
+					"Value" : "Maximum"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Unit",
+					"Value" : "Percent"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:process:default",
+					"OptionName" : "StickinessEnabled",
+					"Value" : "true"
+					},
+					{
+					"Namespace" : "aws:autoscaling:launchconfiguration",
+					"OptionName" : "IamInstanceProfile",
+					"Value" : "aws-elasticbeanstalk-ec2-role"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "LoadBalancerType",
+					"Value" : "application"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "ServiceRole",
+					"Value" : "aws-elasticbeanstalk-service-role"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:proxy",
+					"OptionName" : "ProxyServer",
+					"Value" : "nginx"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBAllocatedStorage",
+					"Value" : "5"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBDeletionPolicy",
+					"Value" : "Delete"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBEngine",
+					"Value" : "postgres"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBInstanceClass",
+					"Value" : "db.t2.micro"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBPassword",
+					"Value" : "camundapass"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBUser",
+					"Value" : "camunda"
+					}
+				],
+				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
+				"Tier" : {
+				   "Name" : "WebServer",
+				   "Type" : "standard"
+				}
+			}
+		},
+		"pipeline": {
+            "Type": "AWS::CodePipeline::Pipeline",
+            "Properties": {
+				"Name": "test",
+				"RoleArn": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"ArtifactStore": {
+					"Type": "S3",
+					"Location": { "Fn::Select" : [ "5", { "Fn::Split": [":", {"Fn::GetAtt" : [ "S3Bucket" , "Arn" ]}]}] }
+				},
+				"Stages": [
+					{
+						"Name": "Source",
+						"Actions": [
+							{
+								"Name": "Source",
+								"ActionTypeId": {
+									"Category": "Source",
+									"Owner": "ThirdParty",
+									"Provider": "GitHub",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"Branch": "master",
+									"OAuthToken": "**************",
+									"Owner": "CrazyDoc",
+									"PollForSourceChanges": "false",
+									"Repo": "infrastructure-beanstalk-test"
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "SourceArtifact"
+									}
+								],
+								"InputArtifacts": []
+							}
+						]
+					},
+					{
+						"Name": "Build",
+						"Actions": [
+							{
+								"Name": "Build",
+								"ActionTypeId": {
+									"Category": "Build",
+									"Owner": "AWS",
+									"Provider": "CodeBuild",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"ProjectName": "test"
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "BuildArtifact"
+									}
+								],
+								"InputArtifacts": [
+									{
+										"Name": "SourceArtifact"
+									}
+								]
+							}
+						]
+					},
+					{
+						"Name": "Deploy",
+						"Actions": [
+							{
+								"Name": "Deploy",
+								"ActionTypeId": {
+									"Category": "Deploy",
+									"Owner": "AWS",
+									"Provider": "ElasticBeanstalk",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"ApplicationName": "test",
+									"EnvironmentName": "test-env"
+								},
+								"OutputArtifacts": [],
+								"InputArtifacts": [
+									{
+										"Name": "BuildArtifact"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		"codebuild": {
+			"Type": "AWS::CodeBuild::Project",
+			"Properties": {
+				"Name": "test",
+				"Source": {
+					"Type": "CODEPIPELINE",
+					"InsecureSsl": false
+				},
+				"Artifacts": {
+					"Type": "CODEPIPELINE",
+					"Name": "test",
+					"Packaging": "NONE",
+					"EncryptionDisabled": false
+				},
+				"Cache": {
+					"Type": "NO_CACHE"
+				},
+				"Environment": {
+					"Type": "LINUX_CONTAINER",
+					"Image": "aws/codebuild/java:openjdk-11",
+					"ComputeType": "BUILD_GENERAL1_SMALL",
+					"EnvironmentVariables": [],
+					"PrivilegedMode": false,
+					"ImagePullCredentialsType": "CODEBUILD"
+				},
+				"ServiceRole": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"TimeoutInMinutes": 60,
+				"QueuedTimeoutInMinutes": 480,
+				"Tags": [],
+				"LogsConfig": {
+					"CloudWatchLogs": {
+						"Status": "ENABLED"
+					},
+					"S3Logs": {
+						"Status": "DISABLED",
+						"EncryptionDisabled": false
+					}
+				}
+			}
+		}
+	}
+}

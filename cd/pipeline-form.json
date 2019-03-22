@@ -1,46 +1,34 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "CodePipelineServiceRole": {
+            "Type": "String"
+        },
+        "SourceS3Bucket": {
+            "Type": "String"
+        },
+        "SourceS3ObjectKey": {
+            "Type": "String"
+        },
+        "ApplicationName": {
+            "Type": "String"
+        },
+        "DeploymentGroupName": {
+            "Type": "String"
+        },
+        "ArtifactstoreS3Location": {
+            "Type": "String"
+        }
+    },
     "Resources": {
-		"StackRole": {
-			"Type": "AWS::IAM::Role",
-			"Properties": {
-				"Path": "/",
-				"ManagedPolicyArns": [
-					"arn:aws:iam::aws:policy/AWSCodePipelineFullAccess",
-					"arn:aws:iam::aws:policy/AmazonS3FullAccess",
-					"arn:aws:iam::aws:policy/AWSCodeDeployFullAccess",
-					"arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess",
-					"arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
-					"arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
-				],
-				"AssumeRolePolicyDocument": {
-					"Version": "2012-10-17",
-					"Statement": [{
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": [
-                                "codepipeline.amazonaws.com",
-								"codebuild.amazonaws.com"
-                            ]
-                        },
-                        "Action": [
-                            "sts:AssumeRole"
-                        ]
-                    }]
-				}
-			}
-		},
-		"S3Bucket": {
-			"Type": "AWS::S3::Bucket"
-		},
 		"pipeline": {
             "Type": "AWS::CodePipeline::Pipeline",
             "Properties": {
 				"Name": "test",
-				"RoleArn": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"RoleArn": "arn:aws:iam::756258835214:role/AWSCodePipelineFullAccess",
 				"ArtifactStore": {
 					"Type": "S3",
-					"Location": { "Fn::Select" : [ "5", { "Fn::Split": [":", {"Fn::GetAtt" : [ "S3Bucket" , "Arn" ]}]}] }
+					"Location": "codepipeline-1234567890"
 				},
 				"Stages": [
 					{
@@ -67,7 +55,8 @@
 										"Name": "SourceArtifact"
 									}
 								],
-								"InputArtifacts": []
+								"InputArtifacts": [],
+								"Region": "us-east-2"
 							}
 						]
 					},
@@ -95,7 +84,8 @@
 									{
 										"Name": "SourceArtifact"
 									}
-								]
+								],
+								"Region": "us-east-2"
 							}
 						]
 					},
@@ -120,7 +110,8 @@
 									{
 										"Name": "BuildArtifact"
 									}
-								]
+								],
+								"Region": "us-east-2"
 							}
 						]
 					}
@@ -152,7 +143,7 @@
 					"PrivilegedMode": false,
 					"ImagePullCredentialsType": "CODEBUILD"
 				},
-				"ServiceRole": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"ServiceRole": "arn:aws:iam::756258835214:role/AWSCodeBuildAdminAccess",
 				"TimeoutInMinutes": 60,
 				"QueuedTimeoutInMinutes": 480,
 				"Tags": [],

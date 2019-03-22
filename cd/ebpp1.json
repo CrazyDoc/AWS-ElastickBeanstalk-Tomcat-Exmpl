@@ -1,5 +1,13 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
+    "Parameters": {
+        "AppName": {
+            "Type": "String",
+			"Default" : "test",
+			"Description" : "Name for ElasticBeanstalk(application, environment), CodePipeline(pipeline, codebuild)"
+        }
+    },
+	
     "Resources": {
 		"StackRole": {
 			"Type": "AWS::IAM::Role",
@@ -29,10 +37,137 @@
                     }]
 				}
 			}
+			
 		},
 		"S3Bucket": {
 			"Type": "AWS::S3::Bucket"
 		},
+		"ebapp": {
+			"Type": "AWS::ElasticBeanstalk::Application",
+			"Properties": {
+				"ApplicationName" : "test",
+				"Description": "AWS Elastic Beanstalk Python Sample Application"
+			}
+			
+		},
+		"sampleConfigurationTemplate": {
+			"Type": "AWS::ElasticBeanstalk::ConfigurationTemplate",
+			"Properties": {
+				"ApplicationName": { "Ref": "ebapp" },
+				"Description": "AWS ElasticBeanstalk Sample Configuration Template",
+				"SolutionStackName": "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
+				"OptionSettings" : [
+					{
+					"Namespace" : "aws:autoscaling:asg",
+					"OptionName" : "MaxSize",
+					"Value" : "1"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "UpperThreshold",
+					"Value" : "60"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "LowerThreshold",
+					"Value" : "20"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "MeasureName",
+					"Value" : "CPUUtilization"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Statistic",
+					"Value" : "Maximum"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Unit",
+					"Value" : "Percent"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:process:default",
+					"OptionName" : "StickinessEnabled",
+					"Value" : "true"
+					},
+					{
+					"Namespace" : "aws:autoscaling:launchconfiguration",
+					"OptionName" : "IamInstanceProfile",
+					"Value" : "aws-elasticbeanstalk-ec2-role"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "LoadBalancerType",
+					"Value" : "application"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "ServiceRole",
+					"Value" : "aws-elasticbeanstalk-service-role"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:proxy",
+					"OptionName" : "ProxyServer",
+					"Value" : "nginx"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBAllocatedStorage",
+					"Value" : "5"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBDeletionPolicy",
+					"Value" : "Delete"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBEngine",
+					"Value" : "postgres"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBInstanceClass",
+					"Value" : "db.t2.micro"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBPassword",
+					"Value" : "**********"
+					},
+					{
+					"Namespace" : "aws:rds:dbinstance",
+					"OptionName" : "DBUser",
+					"Value" : "*********"
+					}
+				]
+			}
+		},
+		
+		"sampleApplicationVersion": {
+			"Type": "AWS::ElasticBeanstalk::ApplicationVersion",
+			"Properties": {
+				"ApplicationName": { "Ref": "ebapp" },
+				"Description": "AWS ElasticBeanstalk Sample Application Version",
+				"SourceBundle": {
+					"S3Bucket": "elasticbeanstalk-us-east-2-756258835214",
+					"S3Key" : "2019072b05-LuRWMmS.zip"
+				}
+			}
+		},
+		
+		"ebenv": {
+			"Type": "AWS::ElasticBeanstalk::Environment",
+			"Properties": {
+				"ApplicationName": { "Ref": "ebapp" },
+				"Description": "AWS ElasticBeanstalk Sample Environment",
+				"TemplateName": { "Ref": "sampleConfigurationTemplate" },
+				"VersionLabel": { "Ref": "sampleApplicationVersion" }
+			}
+		},
+		
 		"pipeline": {
             "Type": "AWS::CodePipeline::Pipeline",
             "Properties": {
