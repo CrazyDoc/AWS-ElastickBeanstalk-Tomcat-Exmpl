@@ -46,7 +46,7 @@
                   type="javax.sql.DataSource"
                   factory="org.apache.tomcat.jdbc.pool.DataSourceFactory"
                   uniqueResourceName="process-engine"
-                  driverClassName="org.postgresql.Driver"
+                  driverClassName="${{DBDriver}}"
                   url="${{JDBC_CONNECTION_STRING}}?autoReconnect=true&amp;serverTimezone=UTC"
                   username="${{DBUser}}"
                   password="${{DBPassword}}"
