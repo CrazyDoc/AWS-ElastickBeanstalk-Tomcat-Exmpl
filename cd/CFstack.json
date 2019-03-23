@@ -19,11 +19,11 @@
 		"DBPassword": {
 			"Type": "String",
 			"Default":"usernamepass",
-			"Description": "Database password",
+			"Description": "The database admin account password",
 			"MinLength": "8",
 			"MaxLength": "41",
-			"AllowedPattern": "[a-zA-Z0-9]*",
-			"ConstraintDescription": "must contain only alphanumeric characters."
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
 		},
 
 		"OperatorEMail": {
@@ -43,7 +43,7 @@
 		"Owner": {
 			"Type": "String",
 			"Default" : "CrazyDoc",
-			"Description" : "Github username to access the repository"	
+			"Description" : "Github owner repo"	
 		}, 
 		
 		"OAuthToken": {
@@ -56,7 +56,65 @@
 			"Type": "String",
 			"Default" : "infrastructure-beanstalk-test",
 			"Description" : "Github repo for assembly and deploy"
-		}		
+		},
+
+		"Engine": {
+			"Type": "String",
+			"Default" : "postgres",
+			"AllowedValues" : ["postgres", "mysql", "mariadb" ],
+			"Description" : "Database engine"
+		},
+		
+		"DBName": {
+			"Type": "String",
+			"Default" : "beanstalkdb",
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"Description" : "Database name"
+		},
+		
+		"DBInstanceClass": {
+			"Type" : "String",
+			"Default" : "t2.micro",
+			"AllowedValues" : ["t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "t2.2xlarge"],
+			"Description" : "Instance type for DB"
+		},
+
+		"EBInstanceClass": {
+			"Type" : "String",
+			"Default" : "t2.micro",
+			"AllowedValues" : ["t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "t2.2xlarge"],
+			"Description" : "Instance type for Elastic Beanstalk"
+		}
+
+	},
+	
+	"Metadata" : {
+		"AWS::CloudFormation::Interface" : {
+			"ParameterGroups" : [
+				{
+				"Label" : { "default":"Other" },
+				"Parameters" : [ "AppName", "OperatorEMail" ]
+				},
+				{
+				"Label" : { "default":"Elastic Beanstalk configuration" },
+				"Parameters" : [ "EBInstanceClass" ]
+				},
+				{
+				"Label" : { "default" : "Database configuration" },
+				"Parameters" : [ "DBInstanceClass", "Engine", "DBUser", "DBPassword", "DBName" ]
+				},
+				{
+				"Label" : { "default":"Github configuration" },
+				"Parameters" : [ "Owner", "Repo", "Branch", "OAuthToken" ]
+				}
+			]
+		}
+	},
+	
+	"Conditions" : {
+		"PostgresCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "postgres"]},
+		"MysqlCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "mysql"]},
+		"MariadbCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "mariadb"]}
 	},
 	
 	"Resources": {
@@ -95,28 +153,6 @@
 			}
 		},
 		
-		"InstanceSecurityGroup": {
-			"Type": "AWS::EC2::SecurityGroup",
-			"Properties": {
-				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
-				"SecurityGroupIngress": []
-			}
-		},
-		
-		"AWSEBRDSDBSecurityGroup": {
-			"DependsOn": "InstanceSecurityGroup",
-			"Type": "AWS::EC2::SecurityGroup",
-			"Properties": {
-				"GroupDescription": "Enable database access to Beanstalk application",
-				"SecurityGroupIngress": {
-					"FromPort": "0",
-					"ToPort": "65535",
-					"IpProtocol": "tcp",
-					"SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
-				}
-			}
-		},
-		
 		"AlarmTopic": {
 			"Type": "AWS::SNS::Topic",
 			"Properties": {
@@ -144,13 +180,37 @@
 			}
 		},
 		
+		"InstanceSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
+				"SecurityGroupIngress": []
+			}
+		},
+		
+		"AWSEBRDSDBSecurityGroup": {
+			"DependsOn": "InstanceSecurityGroup",
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupName": { "Ref": "AppName" },
+				"GroupDescription": "Enable database access to Beanstalk application",
+				"SecurityGroupIngress": {
+					"FromPort": "1150",
+					"ToPort": "65535",
+					"IpProtocol": "tcp",
+					"SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
+				}
+			}
+		},
+		
 		"Database": {
 			"Type": "AWS::RDS::DBInstance",
 			"Properties": {
-				"Engine": "postgres",
-				"DBName": "beanstalkdb",
+				"DBInstanceIdentifier": { "Ref": "AppName" },
+				"Engine": { "Ref": "Engine" },
+				"DBName": { "Ref": "DBName" },
 				"MasterUsername": { "Ref": "DBUser" },
-				"DBInstanceClass": "db.t2.small",
+				"DBInstanceClass": { "Fn::Join": ["", ["db.", { "Ref": "DBInstanceClass" }]]},
 				"AllocatedStorage": "5",
 				"MasterUserPassword": { "Ref": "DBPassword" },
 				"VPCSecurityGroups": [ { "Fn::GetAtt": [ "AWSEBRDSDBSecurityGroup", "GroupId" ] } ]
@@ -168,12 +228,21 @@
 					"Namespace": "aws:autoscaling:launchconfiguration",
 					"OptionName": "SecurityGroups",
 					"Value": { "Ref": "InstanceSecurityGroup" }
-					},
-					
+					},					
 					{
 					"Namespace": "aws:elasticbeanstalk:application:environment",
 					"OptionName": "JDBC_CONNECTION_STRING",
-					"Value": { "Fn::Join": ["", ["jdbc:postgresql://", { "Fn::GetAtt": ["Database", "Endpoint.Address"] }, ":", { "Fn::GetAtt": ["Database", "Endpoint.Port"] }, "/beanstalkdb" ]]}
+					"Value": { "Fn::Join": 
+								["", 
+								["jdbc:",
+								{"Fn::If": ["PostgresCondition", "postgresql", ""]},
+								{"Fn::If": ["MysqlCondition", "mysql", ""]},
+								{"Fn::If": ["MariadbCondition", "mariadb", ""]},
+								"://", 
+								{ "Fn::GetAtt": ["Database", "Endpoint.Address"] }, 
+								":", 
+								{ "Fn::GetAtt": ["Database", "Endpoint.Port"] }, 
+								{ "Fn::Join": ["", [ "/", { "Ref": "DBName" }]]} ] ] }
 					}, 
 					{
 					"Namespace": "aws:elasticbeanstalk:application:environment",
@@ -193,7 +262,7 @@
 					{
 					"Namespace" : "aws:autoscaling:asg",
 					"OptionName" : "MaxSize",
-					"Value" : "1"
+					"Value" : "10"
 					},
 					{
 					"Namespace" : "aws:autoscaling:trigger",
@@ -231,6 +300,11 @@
 					"Value" : "aws-elasticbeanstalk-ec2-role"
 					},
 					{
+					"Namespace" : "aws:autoscaling:launchconfiguration",
+					"OptionName" : "InstanceType",
+					"Value" : { "Ref": "EBInstanceClass" }
+					},
+					{
 					"Namespace" : "aws:elasticbeanstalk:environment",
 					"OptionName" : "LoadBalancerType",
 					"Value" : "application"
@@ -262,7 +336,7 @@
 				"RoleArn": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
 				"ArtifactStore": {
 					"Type": "S3",
-					"Location": { "Fn::Select" : [ "5", { "Fn::Split": [":", {"Fn::GetAtt" : [ "S3Bucket" , "Arn" ]}]}] }
+					"Location": { "Fn::Select" : [ "5", { "Fn::Split": [":", {"Fn::GetAtt" : [ "S3Bucket" , "Arn" ]}]}]}
 				},
 				"Stages": [
 					{

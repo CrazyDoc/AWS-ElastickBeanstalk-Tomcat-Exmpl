@@ -52,6 +52,9 @@
             <includes>
                 <include>org.postgresql:postgresql</include>
             </includes>
+			<includes>
+                <include>org.mariadb.jdbc:mariadb-java-client</include>
+            </includes>
             <outputDirectory>/.ebextensions/tomcat/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
