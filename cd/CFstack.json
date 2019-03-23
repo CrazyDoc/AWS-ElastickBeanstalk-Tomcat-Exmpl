@@ -149,7 +149,7 @@
 			"Type": "AWS::ElasticBeanstalk::Application",
 			"Properties": {
 				"ApplicationName" : { "Ref": "AppName" },
-				"Description": "AWS Elastic Beanstalk Sample Application"
+				"Description": "AWS Elastic Beanstalk Application for Camunda"
 			}
 		},
 		
@@ -223,18 +223,40 @@
 			"Properties" : {
 				"ApplicationName" : { "Ref": "EBapp" },
 				"EnvironmentName" : { "Fn::Join" : [ "-", [ { "Ref": "AppName" }, "env" ] ] },
+				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
+				"Tier" : {"Name" : "WebServer","Type" : "standard"},
 				"OptionSettings" : [
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "NotificationProtocol",
+					"Value": "email"
+					},	
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "NotificationEndpoint",
+					"Value": { "Ref": "OperatorEMail" }
+					},				
 					{
 					"Namespace": "aws:autoscaling:launchconfiguration",
 					"OptionName": "SecurityGroups",
 					"Value": { "Ref": "InstanceSecurityGroup" }
-					},					
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBDriver",
+					"Value": { "Fn::Join": 
+								["",[
+								{"Fn::If": ["PostgresCondition", "org.postgresql.Driver", ""]},
+								{"Fn::If": ["MysqlCondition", "com.mysql.jdbc.Driver", ""]},
+								{"Fn::If": ["MariadbCondition", "org.mariadb.jdbc.Driver", ""]} 
+								]] }
+					},
 					{
 					"Namespace": "aws:elasticbeanstalk:application:environment",
 					"OptionName": "JDBC_CONNECTION_STRING",
 					"Value": { "Fn::Join": 
-								["", 
-								["jdbc:",
+								["",[
+								"jdbc:",
 								{"Fn::If": ["PostgresCondition", "postgresql", ""]},
 								{"Fn::If": ["MysqlCondition", "mysql", ""]},
 								{"Fn::If": ["MariadbCondition", "mariadb", ""]},
@@ -242,7 +264,8 @@
 								{ "Fn::GetAtt": ["Database", "Endpoint.Address"] }, 
 								":", 
 								{ "Fn::GetAtt": ["Database", "Endpoint.Port"] }, 
-								{ "Fn::Join": ["", [ "/", { "Ref": "DBName" }]]} ] ] }
+								{ "Fn::Join": ["", [ "/", { "Ref": "DBName" }]]} 
+								] ] }
 					}, 
 					{
 					"Namespace": "aws:elasticbeanstalk:application:environment",
@@ -319,12 +342,7 @@
 					"OptionName" : "ProxyServer",
 					"Value" : "nginx"
 					}
-				],
-				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
-				"Tier" : {
-				   "Name" : "WebServer",
-				   "Type" : "standard"
-				}
+				]
 			}
 		},
 
