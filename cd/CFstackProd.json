@@ -119,13 +119,13 @@
 	
 	"Resources": {
 	
-#		"mycert" : {
-#			"Type" : "AWS::CertificateManager::Certificate",
-#			"Properties" : {
-#			"DomainName" : "example.com",
-#			"DomainValidationOptions" : [{"DomainName" : "example.com", "ValidationDomain" : "example.com"}]
-#			}
-#		},
+ 		"ACMCert" : {
+ 			"Type" : "AWS::CertificateManager::Certificate",
+ 			"Properties" : {
+ 			"DomainName" : "example.com",
+ 			"DomainValidationOptions" : [{"DomainName" : "example.com", "ValidationDomain" : "example.com"}]
+ 			}
+ 		},
 	
 		"StackRole": {
 			"Type": "AWS::IAM::Role",
