@@ -130,12 +130,12 @@
 					"arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess",
 					"arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
 					"arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
-					"arn:aws:iam::aws:policy/AmazonRDSFullAccess"
-					
+					"arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+					"arn:aws:iam::aws:policy/AmazonSNSFullAccess"
 				],
 				"AssumeRolePolicyDocument": {
 					"Version": "2012-10-17",
-					"Statement": [{ "Effect": "Allow", "Principal": { "AWS" : "*" }, "Action": [ "sts:AssumeRole"] }]
+					"Statement": [{ "Effect": "Allow", "Principal": { "AWS" : "*" }, "Action": [ "sts:AssumeRole"]}]
 				}
 			}
 		},
@@ -153,84 +153,23 @@
 			}
 		},
 		
-		"AlarmTopic": {
-			"Type": "AWS::SNS::Topic",
-			"Properties": {
-				"Subscription": [{ "Endpoint": { "Ref": "OperatorEMail" }, "Protocol": "email" }]
-			}
-		},
-		
-		"CPUAlarmHigh": {
-			"Type": "AWS::CloudWatch::Alarm",
-			"Properties": {
-				"EvaluationPeriods": "10",
-				"Statistic": "Average",
-				"Threshold": "50",
-				"AlarmDescription": "Alarm if CPU too high or metric disappears indicating the RDS database instance is having issues",
-				"Period": "60",
-				"Namespace": "AWS/RDS",
-				"MetricName": "CPUUtilization",
-				"Dimensions": [{
-					"Name": "DBInstanceIdentifier",
-					"Value": { "Ref": "Database" }
-				}],
-				"ComparisonOperator": "GreaterThanThreshold",
-				"AlarmActions": [{ "Ref": "AlarmTopic" }],
-				"InsufficientDataActions": [{ "Ref": "AlarmTopic" }]
-			}
-		},
-		
-		"InstanceSecurityGroup": {
-			"Type": "AWS::EC2::SecurityGroup",
-			"Properties": {
-				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
-				"SecurityGroupIngress": []
-			}
-		},
-		
-		"AWSEBRDSDBSecurityGroup": {
-			"DependsOn": "InstanceSecurityGroup",
-			"Type": "AWS::EC2::SecurityGroup",
-			"Properties": {
-				"GroupName": { "Ref": "AppName" },
-				"GroupDescription": "Enable database access to Beanstalk application",
-				"SecurityGroupIngress": {
-					"FromPort": "1150",
-					"ToPort": "65535",
-					"IpProtocol": "tcp",
-					"SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
-				}
-			}
-		},
-		
-		"Database": {
-			"Type": "AWS::RDS::DBInstance",
-			"Properties": {
-				"DBInstanceIdentifier": { "Ref": "AppName" },
-				"Engine": { "Ref": "Engine" },
-				"DBName": { "Ref": "DBName" },
-				"MasterUsername": { "Ref": "DBUser" },
-				"DBInstanceClass": { "Fn::Join": ["", ["db.", { "Ref": "DBInstanceClass" }]]},
-				"AllocatedStorage": "5",
-				"MasterUserPassword": { "Ref": "DBPassword" },
-				"VPCSecurityGroups": [ { "Fn::GetAtt": [ "AWSEBRDSDBSecurityGroup", "GroupId" ] } ]
-			}
-		},
-		
-		"EBenv": {
-			"Type" : "AWS::ElasticBeanstalk::Environment",
-			"DependsOn": "Database",
+	    "ConfigurationTemplate" : {
+			"Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
 			"Properties" : {
-				"ApplicationName" : { "Ref": "EBapp" },
-				"EnvironmentName" : { "Fn::Join" : [ "-", [ { "Ref": "AppName" }, "env" ] ] },
+				"ApplicationName" : { "Ref" : "EBapp" },
+				"Description" : "Configuration Version 1.0",
 				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
-				"Tier" : {"Name" : "WebServer","Type" : "standard"},
 				"OptionSettings" : [
 					{
 					"Namespace": "aws:elasticbeanstalk:sns:topics",
 					"OptionName": "NotificationProtocol",
 					"Value": "email"
-					},	
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "Notification Endpoint",
+					"Value": { "Ref": "OperatorEMail" }
+					},
 					{
 					"Namespace": "aws:elasticbeanstalk:sns:topics",
 					"OptionName": "NotificationEndpoint",
@@ -343,6 +282,80 @@
 					"Value" : "nginx"
 					}
 				]
+			}
+		},
+		
+		"EBenv": {
+			"Type" : "AWS::ElasticBeanstalk::Environment",
+			"DependsOn": "Database",
+			"Properties" : {
+				"Description": "AWS Elastic Beanstalk Environment running Sample Application",
+				"ApplicationName": { "Ref": "EBapp" },
+				"TemplateName": { "Ref" : "ConfigurationTemplate" }
+			}
+		},
+		
+		"AlarmTopic": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+				"Subscription": [{ "Endpoint": { "Ref": "OperatorEMail" }, "Protocol": "email" }]
+			}
+		},
+		
+		"CPUAlarmHigh": {
+			"Type": "AWS::CloudWatch::Alarm",
+			"Properties": {
+				"EvaluationPeriods": "10",
+				"Statistic": "Average",
+				"Threshold": "50",
+				"AlarmDescription": "Alarm if CPU too high or metric disappears indicating the RDS database instance is having issues",
+				"Period": "60",
+				"Namespace": "AWS/RDS",
+				"MetricName": "CPUUtilization",
+				"Dimensions": [{
+					"Name": "DBInstanceIdentifier",
+					"Value": { "Ref": "Database" }
+				}],
+				"ComparisonOperator": "GreaterThanThreshold",
+				"AlarmActions": [{ "Ref": "AlarmTopic" }],
+				"InsufficientDataActions": [{ "Ref": "AlarmTopic" }]
+			}
+		},
+		
+		"InstanceSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
+				"SecurityGroupIngress": []
+			}
+		},
+		
+		"AWSEBRDSDBSecurityGroup": {
+			"DependsOn": "InstanceSecurityGroup",
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupName": { "Ref": "AppName" },
+				"GroupDescription": "Enable database access to Beanstalk application",
+				"SecurityGroupIngress": {
+					"FromPort": "1150",
+					"ToPort": "65535",
+					"IpProtocol": "tcp",
+					"SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
+				}
+			}
+		},
+		
+		"Database": {
+			"Type": "AWS::RDS::DBInstance",
+			"Properties": {
+				"DBInstanceIdentifier": { "Ref": "AppName" },
+				"Engine": { "Ref": "Engine" },
+				"DBName": { "Ref": "DBName" },
+				"MasterUsername": { "Ref": "DBUser" },
+				"DBInstanceClass": { "Fn::Join": ["", ["db.", { "Ref": "DBInstanceClass" }]]},
+				"AllocatedStorage": "5",
+				"MasterUserPassword": { "Ref": "DBPassword" },
+				"VPCSecurityGroups": [ { "Fn::GetAtt": [ "AWSEBRDSDBSecurityGroup", "GroupId" ] } ]
 			}
 		},
 
