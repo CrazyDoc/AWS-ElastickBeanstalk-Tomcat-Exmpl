@@ -1,0 +1,508 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Parameters": {
+		"AppName": {
+			"Type": "String",
+			"Default" : "camundatest",
+			"Description" : "Name for ElasticBeanstalk(Application, Environment), CodePipeline(Pipeline, CodeBuild)"
+		},
+		"DBUser": {
+			"Type": "String",
+			"Default": "username",
+			"Description": "Database user",
+			"MinLength": "1",
+			"MaxLength": "16",
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+		},
+
+		"DBPassword": {
+			"Type": "String",
+			"Default":"usernamepass",
+			"Description": "The database admin account password",
+			"MinLength": "8",
+			"MaxLength": "41",
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+		},
+
+		"OperatorEMail": {
+			"Description": "EMail address to notify if there are any operational issues",
+			"Type": "String",
+			"Default" : "belev90@yandex.ru",
+			"AllowedPattern": "([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)",
+			"ConstraintDescription": "must be a valid email address."
+		},
+		
+		"Branch": {
+			"Type": "String",
+			"Default" : "master",
+			"Description" : "Github branch for assembly and deploy"
+		},
+		
+		"Owner": {
+			"Type": "String",
+			"Default" : "CrazyDoc",
+			"Description" : "Github owner repo"	
+		}, 
+		
+		"OAuthToken": {
+			"Type": "String",
+			"Default" : "cfc1a91beba3bfe051ffec2bbe356d5e517aa535",
+			"Description" : "Github authorization token"
+		},
+		
+		"Repo": {
+			"Type": "String",
+			"Default" : "infrastructure-beanstalk-test",
+			"Description" : "Github repo for assembly and deploy"
+		},
+
+		"Engine": {
+			"Type": "String",
+			"Default" : "postgres",
+			"AllowedValues" : ["postgres", "mysql", "mariadb" ],
+			"Description" : "Database engine"
+		},
+		
+		"DBName": {
+			"Type": "String",
+			"Default" : "beanstalkdb",
+			"AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+			"Description" : "Database name"
+		},
+		
+		"DBInstanceClass": {
+			"Type" : "String",
+			"Default" : "t2.micro",
+			"AllowedValues" : ["t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "t2.2xlarge"],
+			"Description" : "Instance type for DB"
+		},
+
+		"EBInstanceClass": {
+			"Type" : "String",
+			"Default" : "t2.micro",
+			"AllowedValues" : ["t2.micro", "t2.small", "t2.medium", "t2.large", "t2.xlarge", "t2.2xlarge"],
+			"Description" : "Instance type for Elastic Beanstalk"
+		}
+
+	},
+	
+	"Metadata" : {
+		"AWS::CloudFormation::Interface" : {
+			"ParameterGroups" : [
+				{
+				"Label" : { "default":"Other" },
+				"Parameters" : [ "AppName", "OperatorEMail" ]
+				},
+				{
+				"Label" : { "default":"Elastic Beanstalk configuration" },
+				"Parameters" : [ "EBInstanceClass" ]
+				},
+				{
+				"Label" : { "default" : "Database configuration" },
+				"Parameters" : [ "DBInstanceClass", "Engine", "DBUser", "DBPassword", "DBName" ]
+				},
+				{
+				"Label" : { "default":"Github configuration" },
+				"Parameters" : [ "Owner", "Repo", "Branch", "OAuthToken" ]
+				}
+			]
+		}
+	},
+	
+	"Conditions" : {
+		"PostgresCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "postgres"]},
+		"MysqlCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "mysql"]},
+		"MariadbCondition": {"Fn::Equals" : [{ "Ref": "Engine" }, "mariadb"]}
+	},
+	
+	"Resources": {
+	
+#		"mycert" : {
+#			"Type" : "AWS::CertificateManager::Certificate",
+#			"Properties" : {
+#			"DomainName" : "example.com",
+#			"DomainValidationOptions" : [{"DomainName" : "example.com", "ValidationDomain" : "example.com"}]
+#			}
+#		},
+	
+		"StackRole": {
+			"Type": "AWS::IAM::Role",
+			"Properties": {
+				"Path": "/",
+				"ManagedPolicyArns": [
+					"arn:aws:iam::aws:policy/AWSCodePipelineFullAccess",
+					"arn:aws:iam::aws:policy/AmazonS3FullAccess",
+					"arn:aws:iam::aws:policy/AWSCodeDeployFullAccess",
+					"arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess",
+					"arn:aws:iam::aws:policy/AWSCodeBuildAdminAccess",
+					"arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+					"arn:aws:iam::aws:policy/AmazonRDSFullAccess",
+					"arn:aws:iam::aws:policy/AmazonSNSFullAccess"
+				],
+				"AssumeRolePolicyDocument": {
+					"Version": "2012-10-17",
+					"Statement": [{ "Effect": "Allow", "Principal": { "AWS" : "*" }, "Action": [ "sts:AssumeRole"]}]
+				}
+			}
+		},
+		
+		"S3Bucket": {
+			"Type": "AWS::S3::Bucket",
+			"DependsOn": "StackRole"
+		},
+
+		"EBapp": {
+			"Type": "AWS::ElasticBeanstalk::Application",
+			"Properties": {
+				"ApplicationName" : { "Ref": "AppName" },
+				"Description": "AWS Elastic Beanstalk Application for Camunda"
+			}
+		},
+		
+	    "ConfigurationTemplate" : {
+			"Type" : "AWS::ElasticBeanstalk::ConfigurationTemplate",
+			"Properties" : {
+				"ApplicationName" : { "Ref" : "EBapp" },
+				"Description" : "Configuration Version 1.0",
+				"SolutionStackName" : "64bit Amazon Linux 2018.03 v3.1.1 running Tomcat 8.5 Java 8",
+				"OptionSettings" : [
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "NotificationProtocol",
+					"Value": "email"
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "Notification Endpoint",
+					"Value": { "Ref": "OperatorEMail" }
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:sns:topics",
+					"OptionName": "NotificationEndpoint",
+					"Value": { "Ref": "OperatorEMail" }
+					},				
+					{
+					"Namespace": "aws:autoscaling:launchconfiguration",
+					"OptionName": "SecurityGroups",
+					"Value": { "Ref": "InstanceSecurityGroup" }
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBDriver",
+					"Value": { "Fn::Join": 
+								["",[
+								{"Fn::If": ["PostgresCondition", "org.postgresql.Driver", ""]},
+								{"Fn::If": ["MysqlCondition", "com.mysql.jdbc.Driver", ""]},
+								{"Fn::If": ["MariadbCondition", "org.mariadb.jdbc.Driver", ""]} 
+								]] }
+					},
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "JDBC_CONNECTION_STRING",
+					"Value": { "Fn::Join": 
+								["",[
+								"jdbc:",
+								{"Fn::If": ["PostgresCondition", "postgresql", ""]},
+								{"Fn::If": ["MysqlCondition", "mysql", ""]},
+								{"Fn::If": ["MariadbCondition", "mariadb", ""]},
+								"://", 
+								{ "Fn::GetAtt": ["Database", "Endpoint.Address"] }, 
+								":", 
+								{ "Fn::GetAtt": ["Database", "Endpoint.Port"] }, 
+								{ "Fn::Join": ["", [ "/", { "Ref": "DBName" }]]} 
+								] ] }
+					}, 
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBUser",
+					"Value": { "Ref": "DBUser" }
+					}, 						
+					{
+					"Namespace": "aws:elasticbeanstalk:application:environment",
+					"OptionName": "DBPassword",
+					"Value": { "Ref": "DBPassword" }
+					}, 
+					{
+					"Namespace": "aws:elasticbeanstalk:healthreporting:system",
+					"OptionName": "SystemType",
+					"Value": "enhanced"
+					},
+					{
+					"Namespace" : "aws:autoscaling:asg",
+					"OptionName" : "MaxSize",
+					"Value" : "10"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "UpperThreshold",
+					"Value" : "60"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "LowerThreshold",
+					"Value" : "20"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "MeasureName",
+					"Value" : "CPUUtilization"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Statistic",
+					"Value" : "Maximum"
+					},
+					{
+					"Namespace" : "aws:autoscaling:trigger",
+					"OptionName" : "Unit",
+					"Value" : "Percent"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:process:default",
+					"OptionName" : "StickinessEnabled",
+					"Value" : "true"
+					},
+					{
+					"Namespace" : "aws:autoscaling:launchconfiguration",
+					"OptionName" : "IamInstanceProfile",
+					"Value" : "aws-elasticbeanstalk-ec2-role"
+					},
+					{
+					"Namespace" : "aws:autoscaling:launchconfiguration",
+					"OptionName" : "InstanceType",
+					"Value" : { "Ref": "EBInstanceClass" }
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "LoadBalancerType",
+					"Value" : "application"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment",
+					"OptionName" : "ServiceRole",
+					"Value" : "aws-elasticbeanstalk-service-role"
+					},
+					{
+					"Namespace" : "aws:elasticbeanstalk:environment:proxy",
+					"OptionName" : "ProxyServer",
+					"Value" : "nginx"
+					}
+				]
+			}
+		},
+		
+		"EBenv": {
+			"Type" : "AWS::ElasticBeanstalk::Environment",
+			"DependsOn": "Database",
+			"Properties" : {
+				"Description": "AWS Elastic Beanstalk Environment running Sample Application",
+				"ApplicationName": { "Ref": "EBapp" },
+				"TemplateName": { "Ref" : "ConfigurationTemplate" }
+			}
+		},
+		
+		"AlarmTopic": {
+			"Type": "AWS::SNS::Topic",
+			"Properties": {
+				"Subscription": [{ "Endpoint": { "Ref": "OperatorEMail" }, "Protocol": "email" }]
+			}
+		},
+		
+		"CPUAlarmHigh": {
+			"Type": "AWS::CloudWatch::Alarm",
+			"Properties": {
+				"EvaluationPeriods": "10",
+				"Statistic": "Average",
+				"Threshold": "50",
+				"AlarmDescription": "Alarm if CPU too high or metric disappears indicating the RDS database instance is having issues",
+				"Period": "60",
+				"Namespace": "AWS/RDS",
+				"MetricName": "CPUUtilization",
+				"Dimensions": [{
+					"Name": "DBInstanceIdentifier",
+					"Value": { "Ref": "Database" }
+				}],
+				"ComparisonOperator": "GreaterThanThreshold",
+				"AlarmActions": [{ "Ref": "AlarmTopic" }],
+				"InsufficientDataActions": [{ "Ref": "AlarmTopic" }]
+			}
+		},
+		
+		"InstanceSecurityGroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "RDS allows ingress from EC2 instances in this group.",
+				"SecurityGroupIngress": []
+			}
+		},
+		
+		"AWSEBRDSDBSecurityGroup": {
+			"DependsOn": "InstanceSecurityGroup",
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupName": { "Ref": "AppName" },
+				"GroupDescription": "Enable database access to Beanstalk application",
+				"SecurityGroupIngress": {
+					"FromPort": "1150",
+					"ToPort": "65535",
+					"IpProtocol": "tcp",
+					"SourceSecurityGroupId": { "Fn::GetAtt": [ "InstanceSecurityGroup", "GroupId" ] }
+				}
+			}
+		},
+		
+		"Database": {
+			"Type": "AWS::RDS::DBInstance",
+			"Properties": {
+				"DBInstanceIdentifier": { "Ref": "AppName" },
+				"Engine": { "Ref": "Engine" },
+				"DBName": { "Ref": "DBName" },
+				"MasterUsername": { "Ref": "DBUser" },
+				"DBInstanceClass": { "Fn::Join": ["", ["db.", { "Ref": "DBInstanceClass" }]]},
+				"AllocatedStorage": "5",
+				"MasterUserPassword": { "Ref": "DBPassword" },
+				"VPCSecurityGroups": [ { "Fn::GetAtt": [ "AWSEBRDSDBSecurityGroup", "GroupId" ] } ]
+			}
+		},
+
+		"CodePipeline": {
+			"Type": "AWS::CodePipeline::Pipeline",
+			"DependsOn": "CodeBuild",
+			"Properties": {
+				"Name": { "Ref": "EBenv" },
+				"RoleArn": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"ArtifactStore": {
+					"Type": "S3",
+					"Location": { "Fn::Select" : [ "5", { "Fn::Split": [":", {"Fn::GetAtt" : [ "S3Bucket" , "Arn" ]}]}]}
+				},
+				"Stages": [
+					{
+						"Name": "Source",
+						"Actions": [
+							{
+								"Name": { "Ref": "AppName"},
+								"ActionTypeId": {
+									"Category": "Source",
+									"Owner": "ThirdParty",
+									"Provider": "GitHub",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"Branch": { "Ref": "Branch"},
+									"OAuthToken": { "Ref": "OAuthToken"},
+									"Owner": { "Ref": "Owner"},
+									"PollForSourceChanges": "true",
+									"Repo": { "Ref": "Repo"}
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "SourceArtifact"
+									}
+								],
+								"InputArtifacts": []
+							}
+						]
+					},
+					{
+						"Name": "Build",
+						"Actions": [
+							{
+								"Name": { "Ref": "AppName"},
+								"ActionTypeId": {
+									"Category": "Build",
+									"Owner": "AWS",
+									"Provider": "CodeBuild",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"ProjectName": { "Ref": "AppName"}
+								},
+								"OutputArtifacts": [
+									{
+										"Name": "BuildArtifact"
+									}
+								],
+								"InputArtifacts": [
+									{
+										"Name": "SourceArtifact"
+									}
+								]
+							}
+						]
+					},
+					{
+						"Name": "Deploy",
+						"Actions": [
+							{
+								"Name": { "Ref": "AppName"},
+								"ActionTypeId": {
+									"Category": "Deploy",
+									"Owner": "AWS",
+									"Provider": "ElasticBeanstalk",
+									"Version": "1"
+								},
+								"RunOrder": 1,
+								"Configuration": {
+									"ApplicationName": { "Ref": "AppName"},
+									"EnvironmentName": { "Ref": "EBenv"}
+								},
+								"OutputArtifacts": [],
+								"InputArtifacts": [
+									{
+										"Name": "BuildArtifact"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		},
+		
+		"CodeBuild": {
+			"Type": "AWS::CodeBuild::Project",
+			"DependsOn": "EBenv",
+			"Properties": {
+				"Name": { "Ref": "AppName"},
+				"Source": {
+					"Type": "CODEPIPELINE",
+					"InsecureSsl": false
+				},
+				"Artifacts": {
+					"Type": "CODEPIPELINE",
+					"Name": { "Ref": "AppName"},
+					"Packaging": "NONE",
+					"EncryptionDisabled": false
+				},
+				"Cache": {
+					"Type": "NO_CACHE"
+				},
+				"Environment": {
+					"Type": "LINUX_CONTAINER",
+					"Image": "aws/codebuild/java:openjdk-11",
+					"ComputeType": "BUILD_GENERAL1_SMALL",
+					"EnvironmentVariables": [],
+					"PrivilegedMode": false,
+					"ImagePullCredentialsType": "CODEBUILD"
+				},
+				"ServiceRole": {"Fn::GetAtt" : [ "StackRole" , "Arn" ]},
+				"TimeoutInMinutes": 60,
+				"QueuedTimeoutInMinutes": 480,
+				"Tags": [],
+				"LogsConfig": {
+					"CloudWatchLogs": {
+						"Status": "ENABLED"
+					},
+					"S3Logs": {
+						"Status": "DISABLED",
+						"EncryptionDisabled": false
+					}
+				}
+			}
+		}
+	}
+}
