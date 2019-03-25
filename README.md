@@ -1,6 +1,5 @@
 Structure: 
-1) .ebextensions - parameters to define(override) the environment.
-2) .pom for adding multiple WAR
-3) .elasticbeanstalk - parameters for the EB CLI(the directory is created when the CLI is connected to the application).
+1) /.ebextensions - instructions for setting up applications.
+3) /cd - Install, CD.
 
 ![Scheme](Scheme.png?raw=true "Scheme")
