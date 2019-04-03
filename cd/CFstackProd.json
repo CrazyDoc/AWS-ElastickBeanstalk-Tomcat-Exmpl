@@ -18,6 +18,7 @@
 
 		"DBPassword": {
 			"Type": "String",
+			"NoEcho" : "true",
 			"Default":"usernamepass",
 			"Description": "The database admin account password",
 			"MinLength": "8",
@@ -118,14 +119,6 @@
 	},
 	
 	"Resources": {
-	
- 		"ACMCert" : {
- 			"Type" : "AWS::CertificateManager::Certificate",
- 			"Properties" : {
- 			"DomainName" : "example.com",
- 			"DomainValidationOptions" : [{"DomainName" : "example.com", "ValidationDomain" : "example.com"}]
- 			}
- 		},
 	
 		"StackRole": {
 			"Type": "AWS::IAM::Role",

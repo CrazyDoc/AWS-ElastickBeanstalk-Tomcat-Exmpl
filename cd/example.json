@@ -169,7 +169,7 @@
         "SecurityGroupIngress": []
       }
     },
-
+	
     "DBEC2SecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Condition" : "Is-EC2-VPC",
@@ -179,6 +179,7 @@
           "IpProtocol" : "tcp",
           "FromPort" : "3306", 
           "ToPort" : "3306",
+		  "CidrIp" : { "Fn::GetAtt" : [ "AWS::EC2::VPC", { "Fn::GetAtt" : [ "AWS::EC2::SecurityGroup", "VpcId" ] } ] }б
           "SourceSecurityGroupName" : { "Ref" : "InstanceSecurityGroup" }
         }]
       }
