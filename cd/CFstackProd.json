@@ -552,5 +552,12 @@
 				}
 			}
 		}
+	},
+	
+    "Outputs": {
+		"PublicALBDnsName" : {
+			"Description" : "DNS name to connect to Camunda",
+			"Value" : {"Fn::GetAtt": ["EBenv","EndpointURL"]}
+		}
 	}
 }
