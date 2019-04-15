@@ -1,19 +1,19 @@
-# Deploy a CapBPM environment on AWS using automation
+# Deploy a environment on AWS using automation
 
-## CapBPM on AWS architecture and features
+## Camunda on AWS architecture and features
 The features of using this architecture are as follows:
-* A complete CapBPM environment is automatically deployed in about 20 minutes.
-* CapBPM is deployed in an isolated Virtual Private Cloud
+* A complete environment is automatically deployed in about 20 minutes.
+* Camunda is deployed in an isolated Virtual Private Cloud
 * The environment enables automatic scaling up and down based on load
 * Managed services are used that provide automated patching and maintenance of OS, middleware, and database software
 * Database backups are performed automatically to enable operational and disaster recovery
 
-A high-level diagram showing how the different functions of CapBPM map to AWS Services is shown below.
+A high-level diagram showing how the different functions map to AWS Services is shown below.
 ![Scheme](Scheme.png?raw=true "Scheme")
 
 **AWS Elastic Beanstalk** is used to deploy the application onto Linux Tomcat with Java servers.  Elastic Beanstalk is an easy-to-use service for deploying and scaling web applications. It covers everything from capacity provisioning, load balancing, regular OS and middleware updates, autoscaling, and high availability, to application health monitoring.
 
-**Amazon Relational Database Service (RDS)** is used to provide database for CapBPM.
+**Amazon Relational Database Service (RDS)** is used to provide database for Camunda.
 
 **Amazon Simple Storage Service (S3)** is used as a file repository.  S3 is designed to deliver 99.999999999% durability, and stores data for millions of applications used by market leaders in every industry. S3 provides comprehensive security and compliance capabilities that meet even the most stringent regulatory requirements.
 
@@ -30,12 +30,12 @@ A high-level diagram showing how the different functions of CapBPM map to AWS Se
 
 4. On the next screen, you can review what will be deployed. At the bottom of the screen, there is a check box for you to acknowledge that **AWS CloudFormation might create IAM resources with custom names**. This is correct; the template being deployed creates four custom roles that give permission for the AWS services involved to communicate with each other. Details of these permissions are inside the CloudFormation template referenced in the URL given in the first step. Check the box acknowledging this and choose **Next**.
 
-5. You can watch as CloudFormation builds out your CapBPM environment. A CloudFormation deployment is called a *stack*. The parent stack creates several child stacks depending on the parameters you provided.  When all the stacks have reached the green CREATE_COMPLETE status, as shown in the screenshot following, then the CapBPM architecture has been deployed.  Select the **Outputs** tab to find your environment URL.
+5. You can watch as CloudFormation builds out your environment. A CloudFormation deployment is called a *stack*. The parent stack creates several child stacks depending on the parameters you provided.  When all the stacks have reached the green CREATE_COMPLETE status, as shown in the screenshot following, then architecture has been deployed.  Select the **Outputs** tab to find your environment URL.
 
 6. After clicking on the provided URL, you will be taken to the Camunda login screen. Make sure that [PipeLine](https://console.aws.amazon.com/codesuite/codepipeline/pipelines?) managed to this point to complete the first deploy.
 
 ### Ongoing Operations
-At this point, you have a fully functioning CapBPM environment to begin using.  Following are some helpful points to consider regarding how to support this environment on-going.
+At this point, you have a fully functioning environment to begin using.  Following are some helpful points to consider regarding how to support this environment on-going.
 
 #### SSL
 Add an [SSL certificate](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/configuring-https-elb.html) to your ALB. This can be created by your certification authority or by using [AWS ACM](https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html).
