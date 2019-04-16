@@ -3,7 +3,7 @@
 	"Parameters": {
 		"AppName": {
 			"Type": "String",
-			"Default" : "CapBPMtest",
+			"Default" : "CamundaTest",
 			"Description" : "Name for ElasticBeanstalk(Application, Environment), CodePipeline(Pipeline, CodeBuild)"
 		},
 		"SolutionStackName": {
@@ -59,7 +59,7 @@
 		
 		"Repo": {
 			"Type": "String",
-			"Default" : "infrastructure-beanstalk",
+			"Default" : "infrastructure-beanstalk-test",
 			"Description" : "Github repo for assembly and deploy"
 		},
 
